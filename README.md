@@ -11,5 +11,5 @@ Please see notebooks in `tutorials/`.
 # API document
 In preparing.
 
-# Research paper
+# Reference paper
 In preparing.
