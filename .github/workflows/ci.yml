@@ -6,9 +6,6 @@ jobs:
   ci-fs-bma:
     name: "CI: exhbma package"
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./exhbma
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -27,12 +24,12 @@ jobs:
         run: |
           poetry config virtualenvs.in-project true
 
-      - name: Cache venv # working-directory setting is ignored
+      - name: Cache venv
         id: cache-venv
         uses: actions/cache@v2
         with:
-          path: exhbma/.venv
-          key: ${{ runner.os }}-${{ hashFiles('exhbma/poetry.lock') }}
+          path: .venv
+          key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}
 
       - name: Install Python packages
         if: steps.cache-venv.outputs.cache-hit != 'true'
