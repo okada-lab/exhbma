@@ -463,6 +463,14 @@ notebook = ["ipywidgets (>=6)"]
 telegram = ["requests"]
 
 [[package]]
+name = "types-setuptools"
+version = "57.4.11"
+description = "Typing stubs for setuptools"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.0.1"
 description = "Backported and Experimental Type Hints for Python 3.6+"
@@ -473,7 +481,7 @@ python-versions = ">=3.6"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "c4c310e164424c64882ebecd28de7afe75f0ec28231cffef234e8ae454c537b7"
+content-hash = "6eea8f73e196b4d29affe59cb645d118958aefe4e42c3f30f1e536b89e86d3bc"
 
 [metadata.files]
 atomicwrites = [
@@ -905,6 +913,10 @@ tomli = [
 tqdm = [
     {file = "tqdm-4.62.3-py2.py3-none-any.whl", hash = "sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c"},
     {file = "tqdm-4.62.3.tar.gz", hash = "sha256:d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d"},
+]
+types-setuptools = [
+    {file = "types-setuptools-57.4.11.tar.gz", hash = "sha256:262f7406e0c7d705ad6bb4526b5b761fa500bf99eab74de85ac3592187d62935"},
+    {file = "types_setuptools-57.4.11-py3-none-any.whl", hash = "sha256:fbb0647569d6fb2f6bc472402265250c0ffa53e60180d2cbfee9e84f085921f0"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.0.1-py3-none-any.whl", hash = "sha256:7f001e5ac290a0c0401508864c7ec868be4e701886d5b573a9528ed3973d9d3b"},
