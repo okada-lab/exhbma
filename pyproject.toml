@@ -6,6 +6,9 @@ authors = ["Koki Obinata <koki.obi.321@gmail.com>"]
 packages = [
     { include = "exhbma" },
 ]
+license = "MIT"
+repository = "https://github.com/okada-lab/exhbma"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
