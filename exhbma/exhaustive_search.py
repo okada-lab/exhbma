@@ -1,16 +1,16 @@
 import logging
 from enum import Enum, auto
 from itertools import product
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import numpy as np
 from pydantic import BaseModel, Field
-from scipy.special import gammaln, logsumexp
+from scipy.special import logsumexp
 from tqdm import tqdm
 
 from exhbma.integrate import integrate_log_values_in_square
 from exhbma.linear_regression import LinearRegression
-from exhbma.probabilities import BetaDistributionParams, RandomVariable
+from exhbma.probabilities import RandomVariable
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -55,7 +55,7 @@ class ExhaustiveLinearRegression(object):
         self,
         sigma_noise_points: List[RandomVariable],
         sigma_coef_points: List[RandomVariable],
-        alpha_params: Union[float, BetaDistributionParams],
+        alpha: float = 0.5,
     ):
         """
         Parameters
@@ -66,11 +66,8 @@ class ExhaustiveLinearRegression(object):
         sigma_coef_points: List[RandomVariable]
             Data points to explore sigma_coef parameter in exhaustive search.
 
-        alpha_params: Union[float, BetaDistributionParams]
-            When this parameter is float value, alpha parameter is fixed to this value.
-            When this parameter is BetaDistributionParams instance,
-            we use beta distribution as prior distribution with this parameter
-            and marginalization is performed.
+        alpha: float (default: 0.5)
+            Alpha parameter is fixed to this value.
 
         Attributes
         ----------
@@ -111,7 +108,7 @@ class ExhaustiveLinearRegression(object):
         """
         self.sigma_noise_points = sigma_noise_points
         self.sigma_coef_points = sigma_coef_points
-        self.alpha_params = alpha_params
+        self.alpha = alpha
         self._preprocessing_tolerance = 1e-8
 
     def fit(self, X: np.ndarray, y: np.ndarray, verbose: bool = True):
@@ -144,11 +141,7 @@ class ExhaustiveLinearRegression(object):
             ) = self._fit_over_sigma_noise_and_coef(
                 X=X[:, np.array(indicator) == 1], y=y
             )
-            self.log_priors_.append(
-                self._alpha_marginalized_value(indicator=indicator)
-                if isinstance(self.alpha_params, BetaDistributionParams)
-                else self._fixed_alpha_prior(indicator=indicator)
-            )
+            self.log_priors_.append(self._fixed_alpha_prior(indicator=indicator))
             self.log_likelihoods_.append(log_likelihood)
             self.models_.append(
                 ModelInfo(
@@ -312,36 +305,16 @@ class ExhaustiveLinearRegression(object):
 
         return coefficient
 
-    def _alpha_marginalized_value(self, indicator: List[int]) -> float:
-        r"""
-        Prior distribution for alpha:
-            p(alpha) \propto x^(alpha - 1) (1-x)^(beta - 1)
-
-        Marginalize over alpha
-            \int p(c|alpha)p(alpha) d alpha
-            = Gamma(|c| + alpha) Gamma(p - |c| + beta) / Gamma(p + alpha + beta)
-        """
-        assert isinstance(self.alpha_params, BetaDistributionParams)
-        n_features = len(indicator)
-        n_in_use = sum(indicator)
-        log_alpha_marginalized = (
-            gammaln(n_in_use + self.alpha_params.alpha)
-            + gammaln(n_features - n_in_use + self.alpha_params.beta)
-            - gammaln(n_features + self.alpha_params.alpha + self.alpha_params.beta)
-        )
-        return log_alpha_marginalized
-
     def _fixed_alpha_prior(self, indicator: List[int]) -> float:
         """
         Model prior with fixed alpha:
         p(c) = prod_{i=1}^p alpha^{c_i} (1-alpha)^{1-c_i}
         """
-        assert isinstance(self.alpha_params, float)
         n_features = len(indicator)
         n_in_use = sum(indicator)
-        log_model_prior = n_in_use * np.log(self.alpha_params) + (
+        log_model_prior = n_in_use * np.log(self.alpha) + (
             n_features - n_in_use
-        ) * np.log(1 - self.alpha_params)
+        ) * np.log(1 - self.alpha)
         return log_model_prior
 
     def _generate_indicator(
