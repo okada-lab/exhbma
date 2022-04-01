@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -12,14 +12,20 @@ class RandomVariable(BaseModel):
 
 def gamma(
     x: np.ndarray,
-    low: float = 1e-5,
-    high: float = 1e1,
+    low: Optional[float] = None,
+    high: Optional[float] = None,
     shape: float = 1e-3,
     scale: float = 1e3,
 ) -> List[RandomVariable]:
     """
     Gamma distribution: x ~ (const.) * x^(shape - 1) * exp(- x / scale)
+    Distribution is limited on range of [low, high].
+    If low(high) is None, low(high) is set as the minimum(maximum) value of x.
     """
+    if low is None:
+        low = min(x)
+    if high is None:
+        high = max(x)
     rv = sp_gamma(a=shape, scale=scale)
     norm = rv.cdf(x=high) - rv.cdf(x=low)
     probs = rv.pdf(x=x) / norm
