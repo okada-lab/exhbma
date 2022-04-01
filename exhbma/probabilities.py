@@ -10,15 +10,6 @@ class RandomVariable(BaseModel):
     prob: float = Field(..., ge=0, description="probability density/mass at position")
 
 
-class BetaDistributionParams(BaseModel):
-    alpha: float = Field(
-        default=1.0, gt=0, description="Hyper parameter in beta distribution, alpha."
-    )
-    beta: float = Field(
-        default=1.0, gt=0, description="Hyper parameter in beta distribution, beta."
-    )
-
-
 def gamma(
     x: np.ndarray,
     low: float = 1e-5,
