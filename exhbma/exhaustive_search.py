@@ -55,7 +55,7 @@ class ExhaustiveLinearRegression(object):
         self,
         sigma_noise_points: List[RandomVariable],
         sigma_coef_points: List[RandomVariable],
-        alpha: float,
+        alpha: float = 0.5,
     ):
         """
         Parameters
@@ -66,7 +66,7 @@ class ExhaustiveLinearRegression(object):
         sigma_coef_points: List[RandomVariable]
             Data points to explore sigma_coef parameter in exhaustive search.
 
-        alpha: float
+        alpha: float (default: 0.5)
             Alpha parameter is fixed to this value.
 
         Attributes
