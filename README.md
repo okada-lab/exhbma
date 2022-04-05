@@ -8,8 +8,8 @@ pip install exhbma
 # How to use
 Please see notebooks in `tutorials/`.
 
-# API document
-In preparing.
+# Documentation
+User documentation is available [here](https://exhbma.readthedocs.io/en/latest/index.html).
 
 # Reference paper
 In preparing.
