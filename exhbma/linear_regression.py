@@ -9,42 +9,42 @@ logging.basicConfig(level=logging.INFO)
 class LinearRegression(object):
     """
     Model description:
+
     - Base model: Linear regression model
     - Observation noise: Gaussian distribution
     - Prior distribution for coefficient: Gaussian distribution
     - Intercept of the linear model is assumed to be zero.
+
         - Assume that target variable y is centralized.
         - Assume that all features x are centralized and normalized.
         - Marginalization over intercept is performed.
+
+    Parameters
+    ----------
+    sigma_noise: float
+        Standard deviation of gaussian noise.
+        Model assumes that observation noise obeys Gaussian distribution
+        with mean = 0, variance = sigma_noise^2.
+
+    sigma_coef: float
+        Standard deviation of gaussian noise.
+        Model assumes that each coefficient value obeys Gaussian distribution
+        with mean = 0, variance = sigma_coef^2 independently.
+
+    Attributes
+    ----------
+    n_features_in_: int
+        Number of features seen during fit.
+
+    coef_: List[float]
+        Coefficients of the regression model (mean of distribution).
+
+    log_likelihood_: float
+        Log-likelihood of the model.
+        Marginalization is performed over sigma_noise, sigma_coef, indicators.
     """
 
     def __init__(self, sigma_noise: float, sigma_coef: float):
-        """
-        Parameters
-        ----------
-        sigma_noise: float
-            Standard deviation of gaussian noise.
-            Model assumes that observation noise obeys Gaussian distribution
-            with mean = 0, variance = sigma_noise^2.
-
-        sigma_coef: float
-            Standard deviation of gaussian noise.
-            Model assumes that each coefficient value obeys Gaussian distribution
-            with mean = 0, variance = sigma_coef^2 independently.
-
-        Attributes
-            These variables are created in fit method.
-        ----------
-        n_features_in_: int
-            Number of features seen during fit.
-
-        coef_: List[float]
-            Coefficients of the regression model (mean of distribution).
-
-        log_likelihood_: float
-            Log-likelihood of the model.
-            Marginalization is performed over sigma_noise, sigma_coef, indicators.
-        """
         self.sigma_noise = sigma_noise
         self.sigma_coef = sigma_coef
         self._preprocessing_tolerance = 1e-8
