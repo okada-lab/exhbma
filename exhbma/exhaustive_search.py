@@ -203,7 +203,8 @@ class ExhaustiveLinearRegression(object):
             models_along_coef = []
             for sigma_coef in self.sigma_coef_points:
                 reg = LinearRegression(
-                    sigma_noise=sigma_noise.position, sigma_coef=sigma_coef.position,
+                    sigma_noise=sigma_noise.position,
+                    sigma_coef=sigma_coef.position,
                 )
                 reg.fit(X, y, skip_preprocessing_validation=True)
                 models_along_coef.append(reg)
