@@ -44,11 +44,65 @@ class PredictMode(Enum):
 
 
 class ExhaustiveLinearRegression(object):
-    """
+    r"""
     ExhaustiveSearchModel with linear_model.LinearRegression
+
     - Intercept of the linear model is assumed to be zero.
+
         - Assume that target variable y is centralized.
         - Assume that all features x are centralized and normalized.
+
+    Parameters
+    ----------
+    sigma_noise_points: List[RandomVariable]
+        Data points to explore sigma_noise parameter in exhaustive search.
+
+    sigma_coef_points: List[RandomVariable]
+        Data points to explore sigma_coef parameter in exhaustive search.
+
+    alpha: float (default: 0.5)
+        Alpha parameter is fixed to this value.
+
+    Attributes
+    ----------
+    n_features_in_: int
+        Number of features seen during fit.
+
+    coef_: List[float]
+        Coefficients of the regression model (mean of distribution).
+
+    log_likelihood_: float
+        Log-likelihood of the model.
+        Marginalization is performed over sigma_noise, sigma_coef, indicators.
+
+    log_likelihood_over_sigma_: List[List[float]]
+        Log-likelihood over :math:`\sigma_{noise}` and :math:`\sigma_{coef}`,
+        :math:`p(y| \sigma_{noise}, \sigma_{coef}, X)`,
+        which is marginalized over indicators.
+        Prior distributions for both sigma are not included.
+
+    feature_posteriors_: List[float]
+        Posterior probabilities for each feature.
+
+    indicators_: List[List[int]]
+        List of indicator vectors.
+        Null model `[0, 0, ..., 0]` are excluded,
+        so length is :math:`2^{n\_features\_in\_} - 1`.
+
+    log_priors_: List[float]
+        List of log-prior probabilities for each model specified by indicator.
+
+    log_likelihoods_: List[float]
+        List of log-likelihood of each model specified by indicator.
+
+    models_: List[ModelInfo]
+        Information for all models specified by indicator vector.
+        Length of this attribute is equal to that of indicators_
+        and models correspond to each other.
+
+    Notes
+    -----
+    Hello World!
     """
 
     def __init__(
@@ -57,66 +111,29 @@ class ExhaustiveLinearRegression(object):
         sigma_coef_points: List[RandomVariable],
         alpha: float = 0.5,
     ):
-        """
-        Parameters
-        ----------
-        sigma_noise_points: List[RandomVariable]
-            Data points to explore sigma_noise parameter in exhaustive search.
-
-        sigma_coef_points: List[RandomVariable]
-            Data points to explore sigma_coef parameter in exhaustive search.
-
-        alpha: float (default: 0.5)
-            Alpha parameter is fixed to this value.
-
-        Attributes
-        ----------
-        n_features_in_: int
-            Number of features seen during fit.
-
-        coef_: List[float]
-            Coefficients of the regression model (mean of distribution).
-
-        log_likelihood_: float
-            Log-likelihood of the model.
-            Marginalization is performed over sigma_noise, sigma_coef, indicators.
-
-        log_likelihood_over_sigma_: List[List[float]]
-            Log-likelihood over sigma_noise and sigma_coef,
-            `p(y| sigma_noise, sigma_coef, X)`,
-            which is marginalized over indicators.
-            Prior distributions for both sigma are not included.
-
-        feature_posteriors_: List[float]
-            Posterior probabilities for each feature.
-
-        indicators_: List[List[int]]
-            List of indicator vectors.
-            Null model [0, 0, ..., 0] are excluded,
-            so length is `2 ** n_features_in - 1`.
-
-        log_priors_: List[float]
-            List of log-prior probabilities for each model specified by indicator.
-
-        log_likelihoods_: List[float]
-            List of log-likelihood of each model specified by indicator.
-
-        models_: List[ModelInfo]
-            Information for all models specified by indicator vector.
-            Length of this attribute is equal to that of indicators_
-            and models correspond to each other.
-        """
         self.sigma_noise_points = sigma_noise_points
         self.sigma_coef_points = sigma_coef_points
         self.alpha = alpha
         self._preprocessing_tolerance = 1e-8
 
     def fit(self, X: np.ndarray, y: np.ndarray, verbose: bool = True):
-        """
+        """Train a model
+
         1. Create indicator vectors
         2. Fit sub-models for each indicator vector
            with marginalizing sigma_noise and sigma_coef for each indicator
         3. Calculate final model averaged over sub-models
+
+        Parameters
+        ----------
+        X : np.ndarray with shape (n_data, n_features)
+            Feature matrix. Each row corresponds to single data.
+
+        y : np.ndarray with shape  (n_data,)
+            Target value vector.
+
+        verbose: bool (default: True)
+            If this is set to `True`, progress bar is displayed.
         """
         self.n_features_in_: int = X.shape[1]
 
@@ -349,6 +366,26 @@ class ExhaustiveLinearRegression(object):
         return int(bin_expr, 2) - 1
 
     def predict(self, X: np.ndarray, mode: str, threshold: float = 0.5) -> np.ndarray:
+        """Predict using the model
+
+        Predict about new data.
+
+        Parameters
+        ----------
+        X : np.ndarray with shape (n_data, n_features)
+            Feature matrix for prediction.
+
+        mode: str
+            Mode of prediction.
+
+        threshold: float (default: 0.5)
+            Feature selection threshold used in mode 'select'.
+
+        Returns
+        -------
+        y: np.ndarray
+            Prediction values.
+        """
         try:
             predict_mode = PredictMode[mode]
         except KeyError:

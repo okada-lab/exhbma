@@ -11,4 +11,8 @@ from .plot import feature_posterior, sigma_posterior, weight_diagram
 from .probabilities import RandomVariable, gamma, uniform
 from .scaler import StandardScaler
 
-__version__ = pkg_resources.get_distribution("exhbma").version
+try:
+    __version__ = pkg_resources.get_distribution("exhbma").version
+except pkg_resources.DistributionNotFound:
+    # Only for document generation
+    __version__ = "dev"
