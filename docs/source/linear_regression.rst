@@ -87,7 +87,7 @@ First, we import plot utility functions and prepare names for features.
    columns = [f"feat: {i}" for i in range(n_features)]
 
 
-Feature Posterior
+Feature posterior
 -----------------
 
 Posterior probability that each feature is included in the model is estimated.
@@ -155,6 +155,12 @@ Output
    Coefficient of feature 8: -0.0000
    Coefficient of feature 9: 0.0007
 
+Weight Diagram
+--------------
+For more insights into the model, weight diagram [#weight-diagram]_ is a useful visualization method.
+
+.. image:: images/linear_regression_weight_diagram.png
+
 Prediction for new data
 =======================
 
@@ -190,3 +196,7 @@ Output
    RMSE for test data: 0.1053
 
 RMSE value is close to the predefined noise magnitude, so the estimation is successfully performed.
+
+.. rubric:: References
+
+.. [#weight-diagram] `Y. Igarashi et al., ES-DoS: Exhaustive search and density-of-states estimation as a general framework for sparse variable selection, 2018 <https://iopscience.iop.org/article/10.1088/1742-6596/1036/1/012001>`_
