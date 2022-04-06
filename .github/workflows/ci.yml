@@ -45,3 +45,6 @@ jobs:
 
       - name: Test
         run: make test
+
+      - name: Check requirements.txt for sphinx deployment
+        run: exit $(poetry export -f requirements.txt | diff docs/requirements.txt - | wc -l)
