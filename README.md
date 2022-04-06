@@ -7,7 +7,7 @@ pip install exhbma
 
 # Documentation
 User documentation is available [here](https://exhbma.readthedocs.io/en/latest/index.html).
-You can also try sample notebooks in `tutorials` directory.
+You can try sample notebooks in [tutorials](/tutorials) directory.
 
 # Reference paper
 In preparing.
