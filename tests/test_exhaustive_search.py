@@ -171,7 +171,7 @@ def test_generate_indicator():
         alpha=0.5,
     )
     n_features = 3
-    indicators = reg._generate_indicator(n_features=n_features, exclude_null=True)
+    indicators = reg._generate_indicator(n_features=n_features)
     expect = [
         [1, 0, 0],
         [0, 1, 0],
