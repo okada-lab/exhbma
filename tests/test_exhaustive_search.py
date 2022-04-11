@@ -182,3 +182,54 @@ def test_generate_indicator():
         [1, 1, 1],
     ]
     assert indicators == expect
+
+
+def test_fixed_alpha_prior():
+    """
+    Test method `_fixed_alpha_prior` with manually calculated values.
+    """
+    reg = ExhaustiveLinearRegression(
+        sigma_noise_points=[],
+        sigma_coef_points=[],
+        alpha=0.5,
+    )
+    indicators = [
+        [1, 0, 0],
+        [0, 1, 0],
+        [1, 1, 0],
+        [0, 0, 1],
+        [1, 0, 1],
+        [0, 1, 1],
+        [1, 1, 1],
+    ]
+    expect = 1 / 7
+    for indicator in indicators:
+        assert reg._fixed_alpha_prior(indicator=indicator) == pytest.approx(
+            np.log(expect)
+        )
+
+
+def test_fixed_alpha_prior_not_half():
+    """
+    Test method `_fixed_alpha_prior` with manually calculated values
+    when alpha is not 0.5.
+    """
+    reg = ExhaustiveLinearRegression(
+        sigma_noise_points=[],
+        sigma_coef_points=[],
+        alpha=0.8,
+    )
+    indicators = [
+        [1, 0, 0],
+        [0, 1, 0],
+        [1, 1, 0],
+        [0, 0, 1],
+        [1, 0, 1],
+        [0, 1, 1],
+        [1, 1, 1],
+    ]
+    probs = [0.032, 0.032, 0.128, 0.032, 0.128, 0.128, 0.512]
+    norm = sum(probs)
+    probs = [p / norm for p in probs]
+    for indicator, p in zip(indicators, probs):
+        assert reg._fixed_alpha_prior(indicator=indicator) == pytest.approx(np.log(p))
