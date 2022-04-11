@@ -99,10 +99,6 @@ class ExhaustiveLinearRegression(object):
         Information for all models specified by indicator vector.
         Length of this attribute is equal to that of indicators_
         and models correspond to each other.
-
-    Notes
-    -----
-    Hello World!
     """
 
     def __init__(

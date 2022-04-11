@@ -62,10 +62,6 @@ class LinearRegression(object):
 
         y : np.ndarray with shape  (n_data,)
             Target value vector.
-
-        Notes
-        -----
-        Training data X and y are copied so that original data are not modified.
         """
         self._validate_training_data_shape(X, y)
         if not skip_preprocessing_validation:
