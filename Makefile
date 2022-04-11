@@ -23,3 +23,11 @@ lint: flake8 mypy
 .PHONY: test
 test:
 	poetry run pytest -s --cov-config=.coveragerc --cov=exhbma --cov-report=html .
+
+.PHONY: test-full
+test-full:
+	poetry run pytest -s --cov-config=.coveragerc --cov=exhbma --cov-report=html --tutorial .
+
+.PHONY: test-full-force-update
+test-full-force-update:
+	poetry run pytest -s --cov-config=.coveragerc --cov=exhbma --cov-report=html --tutorial --force-update .

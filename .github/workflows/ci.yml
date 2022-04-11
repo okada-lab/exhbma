@@ -43,8 +43,8 @@ jobs:
       - name: Lint
         run: make lint
 
-      - name: Test
-        run: make test
+      - name: Test(full)
+        run: make test-full
 
       - name: Check requirements.txt for sphinx deployment
         run: exit $(poetry export -f requirements.txt | diff docs/requirements.txt - | wc -l)
