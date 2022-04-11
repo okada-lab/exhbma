@@ -34,7 +34,7 @@ Train a model
 
 First, training data should be preprocessed with centering and normalizing operation.
 Normalization for target variable is optional and is not performed
-in a below example (`scaling=False` is passed for `y_scaler`).
+in a below example (:code:`scaling=False` is passed for :code:`y_scaler`).
 
 .. code:: python
 
@@ -92,7 +92,7 @@ Feature posterior
 
 Posterior probability that each feature is included in the model is estimated.
 
-You can access the values of posterior probability by `reg.feature_posteriors_`.
+You can access the values of posterior probability by :code:`reg.feature_posteriors_`.
 
 .. code:: python
 
