@@ -170,7 +170,7 @@ First, we prepare test data to evaluate the prediction performance.
 .. code:: python
 
    n_test = 10 ** 3
-
+   np.random.seed(10)
    test_X = np.random.randn(n_test, n_features)
    test_y = np.dot(test_X, w) + sigma_noise * np.random.randn(n_test)
 
@@ -195,7 +195,7 @@ Output
 
 .. code:: console
 
-   RMSE for test data: 0.1053
+   RMSE for test data: 0.1029
 
 RMSE value is close to the predefined noise magnitude, so the estimation is successfully performed.
 
