@@ -141,7 +141,7 @@ class ExhaustiveLinearRegression(object):
         )
 
         self.indicators_: List[List[int]] = self._generate_indicator(
-            n_features=self.n_features_in_, exclude_null=True
+            n_features=self.n_features_in_
         )
         self.log_priors_: List[float] = []
         self.log_likelihoods_: List[float] = []
@@ -322,17 +322,19 @@ class ExhaustiveLinearRegression(object):
         """
         Model prior with fixed alpha:
         p(c) = prod_{i=1}^p alpha^{c_i} (1-alpha)^{1-c_i}
+
+        Since we exclude null model, normalization constant is
+        1 - (1 - alpha)^{n_features} .
         """
         n_features = len(indicator)
         n_in_use = sum(indicator)
         log_model_prior = n_in_use * np.log(self.alpha) + (
             n_features - n_in_use
         ) * np.log(1 - self.alpha)
+        log_model_prior -= np.log(1 - (1 - self.alpha) ** n_features)
         return log_model_prior
 
-    def _generate_indicator(
-        self, n_features: int, exclude_null: bool = True
-    ) -> List[List[int]]:
+    def _generate_indicator(self, n_features: int) -> List[List[int]]:
         """
         Parameters
         ----------
@@ -346,10 +348,9 @@ class ExhaustiveLinearRegression(object):
         -------
         indicators : List with shape (n_combinations, n_features)
             All combinations of indicator vector.
-            n_combinations is 2**n_features - 1 if exclude_null = True,
-            else 2**n_features.
+            n_combinations is 2**n_features - 1 because null model is excluded.
         """
-        start = 1 if exclude_null else 0
+        start = 1
         indicators = [list(p)[::-1] for p in product([0, 1], repeat=n_features)]
         return indicators[start:]
 
