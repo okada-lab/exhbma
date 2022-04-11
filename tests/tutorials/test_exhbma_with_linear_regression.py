@@ -39,7 +39,7 @@ def test_exhbma_with_linear_regression(force_update: bool):
     """
     Test tutorial code
     """
-    self_func_name = inspect.currentframe().f_code.co_name
+    self_func_name = inspect.currentframe().f_code.co_name  # type: ignore
     cache_dir = Path(__file__).parent / "cache"
     cache_dir.mkdir(exist_ok=True)
     cache_file_path = cache_dir / f"{self_func_name}.json"
@@ -88,7 +88,7 @@ def test_exhbma_with_linear_regression(force_update: bool):
     reg.fit(X, y)
 
     # Results
-    result = {}
+    result: Dict = {}
 
     # Feature posterior
     result["feature_posteriors_"] = reg.feature_posteriors_
