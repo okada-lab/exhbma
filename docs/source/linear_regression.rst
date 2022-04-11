@@ -169,6 +169,8 @@ First, we prepare test data to evaluate the prediction performance.
 
 .. code:: python
 
+   n_test = 10 ** 3
+
    test_X = np.random.randn(n_test, n_features)
    test_y = np.dot(test_X, w) + sigma_noise * np.random.randn(n_test)
 
