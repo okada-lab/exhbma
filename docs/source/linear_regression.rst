@@ -92,6 +92,8 @@ Feature posterior
 
 Posterior probability that each feature is included in the model is estimated.
 
+You can access the values of posterior probability by `reg.feature_posteriors_`.
+
 .. code:: python
 
    fig, ax = feature_posterior(
