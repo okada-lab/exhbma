@@ -1,7 +1,13 @@
 import numpy as np
 import pytest
+from scipy.special import logsumexp
 
-from exhbma import LinearRegression, StandardScaler
+from exhbma import (
+    LinearRegression,
+    MarginalLinearRegression,
+    RandomVariable,
+    StandardScaler,
+)
 
 
 @pytest.fixture()
@@ -309,3 +315,54 @@ def test_error_validate_different_data_size():
         ValueError, match=r"Data sizes are different between X\(3\) and y\(4\)."
     ):
         reg._validate_training_data_shape(X, y)
+
+
+def test_marginal_linear_regression(seed):
+    """
+    Test method `fit` in a simple case.
+    """
+    n_data, n_features = 200, 10
+    n_test = 1000
+    sigma_noise = 0.01
+
+    X = np.random.randn(n_data, n_features)
+    w = np.random.randn(n_features)
+    y = np.dot(X, w) + np.random.randn(n_data) * sigma_noise
+
+    test_X = np.random.randn(n_test, n_features)
+    test_y = np.dot(test_X, w)
+
+    x_scaler = StandardScaler(n_dim=2)
+    y_scaler = StandardScaler(n_dim=1, scaling=False)
+    x_scaler.fit(X)
+    y_scaler.fit(y)
+    X = x_scaler.transform(X)
+    y = y_scaler.transform(y)
+
+    sigma_noise_points = [
+        RandomVariable(position=0.09, prob=50),
+        RandomVariable(position=0.11, prob=50),
+    ]
+    sigma_coef_points = [
+        RandomVariable(position=0.9, prob=5),
+        RandomVariable(position=1.1, prob=5),
+    ]
+
+    reg = MarginalLinearRegression(
+        sigma_noise_points=sigma_noise_points, sigma_coef_points=sigma_coef_points
+    )
+    reg.fit(X, y)
+
+    log_likelihood = []
+    for i, sn in enumerate(sigma_noise_points):
+        for j, sc in enumerate(sigma_coef_points):
+            lr = LinearRegression(sigma_noise=sn.position, sigma_coef=sc.position)
+            lr.fit(X=X, y=y)
+            assert reg.log_likelihood_over_sigma_[i][j] == lr.log_likelihood_
+            log_likelihood.append(lr.log_likelihood_)
+    assert reg.log_likelihood_ == logsumexp(log_likelihood) - np.log(4)
+
+    check_linear_model(model=reg, expect_coef=w)
+
+    pred_y = y_scaler.restore(reg.predict(x_scaler.transform(test_X)))
+    assert calculate_rmse(test_y, pred_y) <= sigma_noise
