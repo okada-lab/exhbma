@@ -78,28 +78,30 @@ class LinearRegression(object):
         self.n_features_in_ = X.shape[1]
 
         u, s, vh = np.linalg.svd(X, full_matrices=True)
+        uTy = np.dot(u.T, y)
         XTy = np.dot(X.T, y)
+        vhXTy = np.dot(vh, XTy)
 
-        self._fit_with_svd(u=u, s=s, vh=vh, XTy=XTy, y=y)
+        self._fit_with_svd(uTy=uTy, s=s, vh=vh, vhXTy=vhXTy, y=y)
 
     def _fit_with_svd(
         self,
-        u: np.ndarray,
+        uTy: np.ndarray,
         s: np.ndarray,
         vh: np.ndarray,
-        XTy: np.ndarray,
+        vhXTy: np.ndarray,
         y: np.ndarray,
     ):
         """
         Calculate coefficient and log-likelihood using SVD component of X.
         """
-        mu = self._calculate_coefficient(X_svd_vh=vh, X_svd_s=s, XTy=XTy)
+        mu = self._calculate_coefficient(X_svd_vh=vh, X_svd_s=s, vhXTy=vhXTy)
         self.coef_ = mu.tolist()
 
-        self.log_likelihood_ = self._calculate_log_likelihood(X_svd_u=u, X_svd_s=s, y=y)
+        self.log_likelihood_ = self._calculate_log_likelihood(uTy=uTy, X_svd_s=s, y=y)
 
     def _calculate_coefficient(
-        self, X_svd_s: np.ndarray, X_svd_vh: np.ndarray, XTy: np.ndarray
+        self, X_svd_s: np.ndarray, X_svd_vh: np.ndarray, vhXTy: np.ndarray
     ):
         """
         Calculate coefficient using SVD component of X.
@@ -109,17 +111,17 @@ class LinearRegression(object):
         mu = Lambda**(-1) X.T y / sigma_noise**2
            = vh.T (np.diag(s) ** 2 + sigma_noise**2 / sigma_coef ** 2)**(-1) vh X.T y
         """
-        n_features = len(XTy)
+        n_features = X_svd_vh.shape[1]
         eigvals_XTX = np.zeros(n_features)
         eigvals_XTX[: len(X_svd_s)] = X_svd_s ** 2
         # Put sigma_noise into eigvals_lambda
         eigvals_lambda = eigvals_XTX + self.sigma_noise ** 2 / self.sigma_coef ** 2
 
-        mu = np.dot(X_svd_vh.T, np.dot(X_svd_vh, XTy) / eigvals_lambda)
+        mu = np.dot(X_svd_vh.T, vhXTy / eigvals_lambda)
         return mu
 
     def _calculate_log_likelihood(
-        self, X_svd_u: np.ndarray, X_svd_s: np.ndarray, y: np.ndarray
+        self, uTy: np.ndarray, X_svd_s: np.ndarray, y: np.ndarray
     ):
         """
         Calculate log likelihood using SVD component of X.
@@ -137,7 +139,6 @@ class LinearRegression(object):
         eigvals_XXT = np.zeros(n_data)
         eigvals_XXT[: len(X_svd_s)] = X_svd_s ** 2
         eigvals_cov = self.sigma_noise ** 2 + self.sigma_coef ** 2 * eigvals_XXT
-        uTy = np.dot(X_svd_u.T, y)
 
         const = -n_data / 2 * np.log(2 * np.pi)
         log_det = -1 / 2 * np.log(eigvals_cov).sum()
@@ -290,9 +291,12 @@ class MarginalLinearRegression(object):
 
         # Fit models
         u, s, vh = np.linalg.svd(X, full_matrices=True)
+        uTy = np.dot(u.T, y)
         XTy = np.dot(X.T, y)
+        vhXTy = np.dot(vh, XTy)
+
         fit_models: List[List[LinearRegression]] = self._fit_models_over_sigma(
-            u=u, s=s, vh=vh, XTy=XTy, y=y
+            uTy=uTy, s=s, vh=vh, vhXTy=vhXTy, y=y
         )
 
         # Calculate log likelihood
@@ -327,7 +331,9 @@ class MarginalLinearRegression(object):
         self.log_likelihood_over_sigma_ = log_likelihood_over_sigma.tolist()
         self.coef_ = coefficient
 
-    def _fit_models_over_sigma(self, u, s, vh, XTy, y) -> List[List[LinearRegression]]:
+    def _fit_models_over_sigma(
+        self, uTy, s, vh, vhXTy, y
+    ) -> List[List[LinearRegression]]:
         fit_models: List[List[LinearRegression]] = []
         for sigma_noise in self.sigma_noise_points:
             models_along_coef = []
@@ -335,7 +341,7 @@ class MarginalLinearRegression(object):
                 reg = LinearRegression(
                     sigma_noise=sigma_noise.position, sigma_coef=sigma_coef.position
                 )
-                reg._fit_with_svd(u=u, s=s, vh=vh, XTy=XTy, y=y)
+                reg._fit_with_svd(uTy=uTy, s=s, vh=vh, vhXTy=vhXTy, y=y)
                 models_along_coef.append(reg)
             fit_models.append(models_along_coef)
         return fit_models
