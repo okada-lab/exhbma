@@ -1,3 +1,5 @@
+from typing import Union
+
 import numpy as np
 import pytest
 from scipy.special import logsumexp
@@ -17,7 +19,9 @@ def seed():
     return val
 
 
-def check_linear_model(model: LinearRegression, expect_coef: np.ndarray):
+def check_linear_model(
+    model: Union[LinearRegression, MarginalLinearRegression], expect_coef: np.ndarray
+):
     assert model.coef_ == pytest.approx(expect_coef, rel=1e-1)
 
 
