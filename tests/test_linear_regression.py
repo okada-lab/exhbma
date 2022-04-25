@@ -276,8 +276,7 @@ def test_validate_training_data_shape():
     X = np.array([[1, 2], [2, 3], [3, 4]])
     y = np.array([3, 2, 1])
 
-    reg = LinearRegression(sigma_noise=1, sigma_coef=1)
-    reg._validate_training_data_shape(X, y)
+    LinearRegression._validate_training_data_shape(X, y)
 
 
 def test_error_validate_X_shape_1dim():

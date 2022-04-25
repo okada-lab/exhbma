@@ -8,8 +8,7 @@ from pydantic import BaseModel, Field
 from scipy.special import logsumexp
 from tqdm import tqdm
 
-from exhbma.integrate import integrate_log_values_in_square
-from exhbma.linear_regression import LinearRegression
+from exhbma.linear_regression import LinearRegression, MarginalLinearRegression
 from exhbma.probabilities import RandomVariable
 
 logger = logging.getLogger(__name__)
@@ -194,60 +193,16 @@ class ExhaustiveLinearRegression(object):
         Fit over (sigma_noise, sigma_coef) grid points and
         calculate log model likelihood by marginalizing.
         """
-        fit_models: List[List[LinearRegression]] = []
-        for sigma_noise in self.sigma_noise_points:
-            models_along_coef = []
-            for sigma_coef in self.sigma_coef_points:
-                reg = LinearRegression(
-                    sigma_noise=sigma_noise.position,
-                    sigma_coef=sigma_coef.position,
-                )
-                reg.fit(X, y, skip_preprocessing_validation=True)
-                models_along_coef.append(reg)
-            fit_models.append(models_along_coef)
-
-        # Prepare for marginalization
-        np_log_likelihood_over_sigma = np.array(
-            [
-                [model.log_likelihood_ for model in models_along_coef]
-                for models_along_coef in fit_models
-            ]
+        model = MarginalLinearRegression(
+            sigma_noise_points=self.sigma_noise_points,
+            sigma_coef_points=self.sigma_coef_points,
         )
-        np_log_prior = np.log([p.prob for p in self.sigma_noise_points]).reshape(
-            -1, 1
-        ) + np.log([p.prob for p in self.sigma_coef_points]).reshape(1, -1)
-        each_model_log_joint_probabilities = np_log_likelihood_over_sigma + np_log_prior
-
-        # Marginalize over sigma_noise and sigma_coef
-        log_likelihood = integrate_log_values_in_square(
-            log_values=each_model_log_joint_probabilities.tolist(),
-            x1=[p.position for p in self.sigma_noise_points],
-            x2=[p.position for p in self.sigma_coef_points],
-        )
-
-        # Integrate coefficient by log_prob_values
-        # More specifically, calculated coefficient is the mean of p(w|c, X, y).
-        coefficient = []
-        for i in range(X.shape[1]):
-            coefficient_weights = [
-                [model.coef_[i] for model in models_along_coef]
-                for models_along_coef in fit_models
-            ]
-            result = integrate_log_values_in_square(
-                log_values=(
-                    each_model_log_joint_probabilities - log_likelihood
-                ).tolist(),
-                x1=[p.position for p in self.sigma_noise_points],
-                x2=[p.position for p in self.sigma_coef_points],
-                weights=coefficient_weights,
-                expect_positive=False,
-            )
-            coefficient.append(result[1] * np.exp(result[0]))
+        model.fit(X=X, y=y, skip_preprocessing_validation=True)
 
         return (
-            log_likelihood,
-            np_log_likelihood_over_sigma.tolist(),
-            coefficient,
+            model.log_likelihood_,
+            model.log_likelihood_over_sigma_,
+            model.coef_,
         )
 
     def _calculate_log_marginal_likelihood(

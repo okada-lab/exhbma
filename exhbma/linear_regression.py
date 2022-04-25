@@ -1,6 +1,10 @@
 import logging
+from typing import List
 
 import numpy as np
+
+from exhbma.integrate import integrate_log_values_in_square
+from exhbma.probabilities import RandomVariable
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -76,6 +80,19 @@ class LinearRegression(object):
         u, s, vh = np.linalg.svd(X, full_matrices=True)
         XTy = np.dot(X.T, y)
 
+        self._fit_with_svd(u=u, s=s, vh=vh, XTy=XTy, y=y)
+
+    def _fit_with_svd(
+        self,
+        u: np.ndarray,
+        s: np.ndarray,
+        vh: np.ndarray,
+        XTy: np.ndarray,
+        y: np.ndarray,
+    ):
+        """
+        Calculate coefficient and log-likelihood using SVD component of X.
+        """
         mu = self._calculate_coefficient(X_svd_vh=vh, X_svd_s=s, XTy=XTy)
         self.coef_ = mu.tolist()
 
@@ -133,7 +150,8 @@ class LinearRegression(object):
         log_likelihood = const + log_det + log_exp + log_intercept
         return log_likelihood
 
-    def _validate_training_data_shape(self, X, y):
+    @staticmethod
+    def _validate_training_data_shape(X, y):
         """
         Validate training data X and y.
         Check list:
@@ -192,10 +210,174 @@ class LinearRegression(object):
         X : np.ndarray with shape (n_data, n_features)
             Feature matrix for prediction.
         """
-        if self.coef_ is None:
-            raise ValueError(
-                "`fit` is not executed. Prediction needs `fit` in advance."
+        pred = np.dot(X, self.coef_)
+        return pred
+
+
+class MarginalLinearRegression(object):
+    r"""
+    Model description:
+
+    - Base model: Linear regression model
+    - Observation noise: Gaussian distribution
+    - Prior distribution for coefficient: Gaussian distribution
+    - Intercept of the linear model is assumed to be zero.
+    - Marginalization over sigma_noise and sigma_coefficient are performed.
+
+        - Assume that target variable y is centralized.
+        - Assume that all features x are centralized and normalized.
+        - Marginalization over intercept is performed.
+
+    Parameters
+    ----------
+    sigma_noise_points: List[RandomVariable]
+        Data points to marginalize over sigma_noise parameter.
+
+    sigma_coef_points: List[RandomVariable]
+        Data points to marginalize over sigma_coef parameter.
+
+
+    Attributes
+    ----------
+    n_features_in_: int
+        Number of features seen during fit.
+
+    coef_: List[float]
+        Coefficients of the regression model (mean of distribution).
+
+    log_likelihood_: float
+        Log-likelihood of the model.
+        Marginalization is performed over sigma_noise, sigma_coef, indicators.
+
+    log_likelihood_over_sigma_: List[List[float]]
+        Log-likelihood over :math:`\sigma_{noise}` and :math:`\sigma_{coef}`,
+        :math:`p(y| \sigma_{noise}, \sigma_{coef}, X)`.
+        Prior distributions for both sigma are not included.
+    """
+
+    def __init__(
+        self,
+        sigma_noise_points: List[RandomVariable],
+        sigma_coef_points: List[RandomVariable],
+    ):
+        self.sigma_noise_points = sigma_noise_points
+        self.sigma_coef_points = sigma_coef_points
+        self._preprocessing_tolerance = 1e-8
+
+    def fit(
+        self, X: np.ndarray, y: np.ndarray, skip_preprocessing_validation: bool = False
+    ):
+        """
+        Calculate coefficient used in prediction and log likelihood for this data.
+
+        Parameters
+        ----------
+        X : np.ndarray with shape (n_data, n_features)
+            Feature matrix. Each row corresponds to single data.
+
+        y : np.ndarray with shape  (n_data,)
+            Target value vector.
+        """
+        LinearRegression._validate_training_data_shape(X, y)
+        if not skip_preprocessing_validation:
+            LinearRegression.validate_target_centralization(
+                y, tolerance=self._preprocessing_tolerance
+            )
+            LinearRegression.validate_feature_standardization(
+                X, tolerance=self._preprocessing_tolerance
+            )
+        self.n_features_in_ = X.shape[1]
+
+        # Fit models
+        u, s, vh = np.linalg.svd(X, full_matrices=True)
+        XTy = np.dot(X.T, y)
+        fit_models: List[List[LinearRegression]] = self._fit_models_over_sigma(
+            u=u, s=s, vh=vh, XTy=XTy, y=y
+        )
+
+        # Calculate log likelihood
+        log_likelihood_over_sigma = np.array(
+            [
+                [model.log_likelihood_ for model in models_along_coef]
+                for models_along_coef in fit_models
+            ]
+        )
+        log_prior = np.log([p.prob for p in self.sigma_noise_points]).reshape(
+            -1, 1
+        ) + np.log([p.prob for p in self.sigma_coef_points]).reshape(1, -1)
+        log_joint_probabilities = log_likelihood_over_sigma + log_prior
+
+        log_likelihood = self._integrate_log_likelihood_over_sigma(
+            log_joint_probabilities=log_joint_probabilities
+        )
+
+        # Integrate coefficient by log_prob_values
+        coefficient = []
+        for i in range(X.shape[1]):
+            coefficient.append(
+                self._integrate_coefficient_over_sigma(
+                    index=i,
+                    fit_models=fit_models,
+                    log_joint_probabilities=log_joint_probabilities,
+                    log_likelihood=log_likelihood,
+                )
             )
 
+        self.log_likelihood_ = log_likelihood
+        self.log_likelihood_over_sigma_ = log_likelihood_over_sigma.tolist()
+        self.coef_ = coefficient
+
+    def _fit_models_over_sigma(self, u, s, vh, XTy, y) -> List[List[LinearRegression]]:
+        fit_models: List[List[LinearRegression]] = []
+        for sigma_noise in self.sigma_noise_points:
+            models_along_coef = []
+            for sigma_coef in self.sigma_coef_points:
+                reg = LinearRegression(
+                    sigma_noise=sigma_noise.position, sigma_coef=sigma_coef.position
+                )
+                reg._fit_with_svd(u=u, s=s, vh=vh, XTy=XTy, y=y)
+                models_along_coef.append(reg)
+            fit_models.append(models_along_coef)
+        return fit_models
+
+    def _integrate_log_likelihood_over_sigma(
+        self,
+        log_joint_probabilities,
+    ) -> float:
+        # Marginalize over sigma_noise and sigma_coef
+        log_likelihood = integrate_log_values_in_square(
+            log_values=log_joint_probabilities.tolist(),
+            x1=[p.position for p in self.sigma_noise_points],
+            x2=[p.position for p in self.sigma_coef_points],
+        )
+        return log_likelihood
+
+    def _integrate_coefficient_over_sigma(
+        self,
+        index: int,
+        fit_models: List[List[LinearRegression]],
+        log_joint_probabilities,
+        log_likelihood: float,
+    ) -> float:
+        coefficient_weights = [
+            [model.coef_[index] for model in models_along_coef]
+            for models_along_coef in fit_models
+        ]
+        result = integrate_log_values_in_square(
+            log_values=(log_joint_probabilities - log_likelihood).tolist(),
+            x1=[p.position for p in self.sigma_noise_points],
+            x2=[p.position for p in self.sigma_coef_points],
+            weights=coefficient_weights,
+            expect_positive=False,
+        )
+        return result[1] * np.exp(result[0])
+
+    def predict(self, X):
+        """
+        Prediction using trained model.
+
+        X : np.ndarray with shape (n_data, n_features)
+            Feature matrix for prediction.
+        """
         pred = np.dot(X, self.coef_)
         return pred
