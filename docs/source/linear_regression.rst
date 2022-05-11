@@ -38,7 +38,7 @@ in a below example (:code:`scaling=False` is passed for :code:`y_scaler`).
 
 .. code:: python
 
-   from exhbma import ExhaustiveLinearRegression, gamma, StandardScaler
+   from exhbma import ExhaustiveLinearRegression, inverse, StandardScaler
 
    x_scaler = StandardScaler(n_dim=2)
    y_scaler = StandardScaler(n_dim=1, scaling=False)
@@ -50,7 +50,7 @@ in a below example (:code:`scaling=False` is passed for :code:`y_scaler`).
 
 For constructing an estimator model, prior distribution parameters for :math:`\sigma_{noise}`
 and :math:`\sigma_{coef}` need to be specified.
-You need to specify discrete points for the gamma distribution and
+You need to specify discrete points for the x-inverse distribution and
 these points are used for numerical integration (marginalization over
 :math:`\sigma_{noise}` and :math:`\sigma_{coef}`).
 
@@ -65,10 +65,10 @@ Fit process will finish within a minute.
 
    # Model fitting
    reg = ExhaustiveLinearRegression(
-       sigma_noise_points=gamma(
+       sigma_noise_points=inverse(
            np.logspace(sigma_noise_log_range[0], sigma_noise_log_range[1], n_sigma_points),
        ),
-       sigma_coef_points=gamma(
+       sigma_coef_points=inverse(
            np.logspace(sigma_coef_log_range[0], sigma_coef_log_range[1], n_sigma_points),
        ),
    )

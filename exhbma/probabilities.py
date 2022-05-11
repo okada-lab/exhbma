@@ -45,6 +45,10 @@ def inverse(
     low: Optional[float] = None,
     high: Optional[float] = None,
 ) -> List[RandomVariable]:
+    """
+    x-inverse distribution: p(x) = 1 / x
+    This distribution becomes proper when finite interval is considered.
+    """
     if low is None:
         low = min(x)
     if high is None:
