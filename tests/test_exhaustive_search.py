@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 import pytest
 
-from exhbma import ExhaustiveLinearRegression, StandardScaler, gamma
+from exhbma import ExhaustiveLinearRegression, StandardScaler, inverse
 
 
 @pytest.fixture()
@@ -76,10 +76,10 @@ def test_exhaustive_linear_regression(seed):
     y = y_scaler.transform(y)
 
     reg = ExhaustiveLinearRegression(
-        sigma_noise_points=gamma(
+        sigma_noise_points=inverse(
             np.logspace(-3, 0, prob_data_points), low=1e-3, high=1e0
         ),
-        sigma_coef_points=gamma(
+        sigma_coef_points=inverse(
             np.logspace(-2, 1, prob_data_points), low=1e-2, high=1e1
         ),
         alpha=alpha,
@@ -131,10 +131,10 @@ def test_exhaustive_linear_regression_case_different_sigma_points(seed):
     y = y_scaler.transform(y)
 
     reg = ExhaustiveLinearRegression(
-        sigma_noise_points=gamma(
+        sigma_noise_points=inverse(
             np.logspace(-3, 0, prob_data_points + 3), low=1e-3, high=1e0
         ),
-        sigma_coef_points=gamma(
+        sigma_coef_points=inverse(
             np.logspace(-2, 1, prob_data_points), low=1e-2, high=1e1
         ),
         alpha=alpha,

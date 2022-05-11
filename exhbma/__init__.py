@@ -13,7 +13,7 @@ from .linear_regression import (
     MarginalNullRegression,
 )
 from .plot import feature_posterior, sigma_posterior, weight_diagram
-from .probabilities import RandomVariable, gamma, uniform
+from .probabilities import RandomVariable, gamma, inverse, uniform
 from .scaler import StandardScaler
 
 try:
