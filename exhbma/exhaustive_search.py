@@ -1,14 +1,18 @@
 import logging
 from enum import Enum, auto
 from itertools import product
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 from pydantic import BaseModel, Field
 from scipy.special import logsumexp
 from tqdm import tqdm
 
-from exhbma.linear_regression import LinearRegression, MarginalLinearRegression
+from exhbma.linear_regression import (
+    LinearRegression,
+    MarginalLinearRegression,
+    MarginalNullRegression,
+)
 from exhbma.probabilities import RandomVariable
 
 logger = logging.getLogger(__name__)
@@ -62,6 +66,9 @@ class ExhaustiveLinearRegression(object):
     alpha: float (default: 0.5)
         Alpha parameter is fixed to this value.
 
+    exclude_null: bool (default: False)
+        Whether or not exclude a null model.
+
     Attributes
     ----------
     n_features_in_: int
@@ -105,10 +112,12 @@ class ExhaustiveLinearRegression(object):
         sigma_noise_points: List[RandomVariable],
         sigma_coef_points: List[RandomVariable],
         alpha: float = 0.5,
+        exclude_null: bool = False,
     ):
         self.sigma_noise_points = sigma_noise_points
         self.sigma_coef_points = sigma_coef_points
         self.alpha = alpha
+        self.exclude_null = exclude_null
         self._preprocessing_tolerance = 1e-8
 
     def fit(self, X: np.ndarray, y: np.ndarray, verbose: bool = True):
@@ -193,9 +202,16 @@ class ExhaustiveLinearRegression(object):
         Fit over (sigma_noise, sigma_coef) grid points and
         calculate log model likelihood by marginalizing.
         """
-        model = MarginalLinearRegression(
-            sigma_noise_points=self.sigma_noise_points,
-            sigma_coef_points=self.sigma_coef_points,
+        model: Union[MarginalNullRegression, MarginalLinearRegression] = (
+            MarginalLinearRegression(
+                sigma_noise_points=self.sigma_noise_points,
+                sigma_coef_points=self.sigma_coef_points,
+            )
+            if len(X[0]) > 0
+            else MarginalNullRegression(
+                sigma_noise_points=self.sigma_noise_points,
+                sigma_coef_points=self.sigma_coef_points,
+            )
         )
         model.fit(X=X, y=y, skip_preprocessing_validation=True)
 
@@ -305,17 +321,18 @@ class ExhaustiveLinearRegression(object):
             All combinations of indicator vector.
             n_combinations is 2**n_features - 1 because null model is excluded.
         """
-        start = 1
+        offset = 1 if self.exclude_null else 0
         indicators = [list(p)[::-1] for p in product([0, 1], repeat=n_features)]
-        return indicators[start:]
+        return indicators[offset:]
 
     def _transform_indicator_to_model_index(self, indicator: List[int]) -> int:
         if len(indicator) != self.n_features_in_:
             raise ValueError(
                 f"indicator should have be {self.n_features_in_}-length list"
             )
+        offset = 1 if self.exclude_null else 0
         bin_expr = "".join(map(str, indicator))[::-1]
-        return int(bin_expr, 2) - 1
+        return int(bin_expr, 2) - offset
 
     def predict(self, X: np.ndarray, mode: str, threshold: float = 0.5) -> np.ndarray:
         """Predict using the model

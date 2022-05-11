@@ -6,7 +6,12 @@ from .integrate import (
     integrate_log_values_in_square,
     validate_list_dimension,
 )
-from .linear_regression import LinearRegression, MarginalLinearRegression
+from .linear_regression import (
+    ConstantRegression,
+    LinearRegression,
+    MarginalLinearRegression,
+    MarginalNullRegression,
+)
 from .plot import feature_posterior, sigma_posterior, weight_diagram
 from .probabilities import RandomVariable, gamma, uniform
 from .scaler import StandardScaler
