@@ -15,7 +15,7 @@ def seed():
 
 def check_basic_attribute_after_fit(model: ExhaustiveLinearRegression, n_features: int):
     assert model.n_features_in_ == n_features
-    assert len(model.indicators_) == 2 ** n_features - 1
+    assert len(model.indicators_) == 2 ** n_features
 
 
 def check_feature_posteriors(
@@ -169,6 +169,28 @@ def test_generate_indicator():
         sigma_noise_points=[],
         sigma_coef_points=[],
         alpha=0.5,
+    )
+    n_features = 3
+    indicators = reg._generate_indicator(n_features=n_features)
+    expect = [
+        [0, 0, 0],
+        [1, 0, 0],
+        [0, 1, 0],
+        [1, 1, 0],
+        [0, 0, 1],
+        [1, 0, 1],
+        [0, 1, 1],
+        [1, 1, 1],
+    ]
+    assert indicators == expect
+
+
+def test_generate_indicator_excluding_null():
+    """
+    Test method `_generate_indicator` with manually generated indicators.
+    """
+    reg = ExhaustiveLinearRegression(
+        sigma_noise_points=[], sigma_coef_points=[], alpha=0.5, exclude_null=True
     )
     n_features = 3
     indicators = reg._generate_indicator(n_features=n_features)
