@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from scipy import integrate
 
-from exhbma import gamma, uniform
+from exhbma import gamma, inverse, uniform
 
 
 def test_gamma():
@@ -39,3 +39,19 @@ def test_uniform():
 
     for rv in rvs:
         assert rv.prob == pytest.approx(1 / (high - low))
+
+
+def test_inverse():
+    """
+    Test method `inverse` with numerically defined gamma distribution.
+    """
+    low = 1e-5
+    high = 1
+    n_points = 101
+    x = np.logspace(low, high, n_points)
+    rvs = inverse(x, low=low, high=high)
+
+    const = np.log(high) - np.log(low)
+    distribution = 1 / (x * const)
+    for rv, d in zip(rvs, distribution):
+        assert rv.prob == pytest.approx(d)

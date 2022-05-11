@@ -38,3 +38,18 @@ def uniform(x: np.ndarray, low: float = 0.0, high: float = 1.0) -> List[RandomVa
     """
     prob = 1 / (high - low)
     return [RandomVariable(position=position, prob=prob) for position in x]
+
+
+def inverse(
+    x: np.ndarray,
+    low: Optional[float] = None,
+    high: Optional[float] = None,
+) -> List[RandomVariable]:
+    if low is None:
+        low = min(x)
+    if high is None:
+        high = max(x)
+
+    norm = np.log(high) - np.log(low)
+    probs = (1 / x) / norm
+    return [RandomVariable(position=i, prob=p) for (i, p) in zip(x, probs)]
