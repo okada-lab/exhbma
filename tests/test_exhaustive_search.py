@@ -206,14 +206,43 @@ def test_generate_indicator_excluding_null():
     assert indicators == expect
 
 
-def test_fixed_alpha_prior():
+def test_fixed_alpha_prior_include_null():
     """
     Test method `_fixed_alpha_prior` with manually calculated values.
+    Null model is included.
     """
     reg = ExhaustiveLinearRegression(
         sigma_noise_points=[],
         sigma_coef_points=[],
         alpha=0.5,
+    )
+    indicators = [
+        [0, 0, 0],
+        [1, 0, 0],
+        [0, 1, 0],
+        [1, 1, 0],
+        [0, 0, 1],
+        [1, 0, 1],
+        [0, 1, 1],
+        [1, 1, 1],
+    ]
+    expect = 1 / 8
+    for indicator in indicators:
+        assert reg._fixed_alpha_prior(indicator=indicator) == pytest.approx(
+            np.log(expect)
+        )
+
+
+def test_fixed_alpha_prior_exclude_null():
+    """
+    Test method `_fixed_alpha_prior` with manually calculated values.
+    Null model is excluded.
+    """
+    reg = ExhaustiveLinearRegression(
+        sigma_noise_points=[],
+        sigma_coef_points=[],
+        alpha=0.5,
+        exclude_null=True,
     )
     indicators = [
         [1, 0, 0],
@@ -235,6 +264,7 @@ def test_fixed_alpha_prior_not_half():
     """
     Test method `_fixed_alpha_prior` with manually calculated values
     when alpha is not 0.5.
+    Null model is included.
     """
     reg = ExhaustiveLinearRegression(
         sigma_noise_points=[],
@@ -242,6 +272,7 @@ def test_fixed_alpha_prior_not_half():
         alpha=0.8,
     )
     indicators = [
+        [0, 0, 0],
         [1, 0, 0],
         [0, 1, 0],
         [1, 1, 0],
@@ -250,8 +281,6 @@ def test_fixed_alpha_prior_not_half():
         [0, 1, 1],
         [1, 1, 1],
     ]
-    probs = [0.032, 0.032, 0.128, 0.032, 0.128, 0.128, 0.512]
-    norm = sum(probs)
-    probs = [p / norm for p in probs]
+    probs = [0.008, 0.032, 0.032, 0.128, 0.032, 0.128, 0.128, 0.512]
     for indicator, p in zip(indicators, probs):
         assert reg._fixed_alpha_prior(indicator=indicator) == pytest.approx(np.log(p))

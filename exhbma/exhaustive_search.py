@@ -302,7 +302,8 @@ class ExhaustiveLinearRegression(object):
         log_model_prior = n_in_use * np.log(self.alpha) + (
             n_features - n_in_use
         ) * np.log(1 - self.alpha)
-        log_model_prior -= np.log(1 - (1 - self.alpha) ** n_features)
+        if self.exclude_null:
+            log_model_prior -= np.log(1 - (1 - self.alpha) ** n_features)
         return log_model_prior
 
     def _generate_indicator(self, n_features: int) -> List[List[int]]:
