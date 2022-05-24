@@ -17,11 +17,9 @@ class ConstantRegression(object):
 
     - Base model: Constant model
     - Observation noise: Gaussian distribution
-    - Prior distribution for coefficient: Gaussian distribution
-    - Intercept of the linear model is assumed to be zero.
+    - Intercept of the model is assumed to be zero.
 
         - Assume that target variable y is centralized.
-        - Assume that all features x are centralized and normalized.
         - Marginalization over intercept is performed.
 
     Parameters
@@ -39,10 +37,10 @@ class ConstantRegression(object):
     Attributes
     ----------
     n_features_in_: int
-        Number of features seen during fit.
+        Always return 0 value, but prepared to unify api for regression models.
 
     coef_: List[float]
-        Coefficients of the regression model (mean of distribution).
+        Always return null list [], but prepared to unify api for regression models.
 
     log_likelihood_: float
         Log-likelihood of the model.
@@ -62,8 +60,8 @@ class ConstantRegression(object):
 
         Parameters
         ----------
-        X : np.ndarray with shape (n_data, n_features)
-            Feature matrix. Each row corresponds to single data.
+        X : np.ndarray with shape (n_data, 0)
+            Null feature matrix.
 
         y : np.ndarray with shape  (n_data,)
             Target value vector.
@@ -100,7 +98,10 @@ class ConstantRegression(object):
         return log_likelihood
 
     def predict(self, X):
-        return 0
+        """
+        Since data is centralized, this method always returns 0 value.
+        """
+        return np.zeros(X.shape[0])
 
 
 class MarginalConstantRegression(object):
@@ -109,11 +110,10 @@ class MarginalConstantRegression(object):
 
     - Base model: Constant model
     - Observation noise: Gaussian distribution
-    - Intercept of the linear model is assumed to be zero.
+    - Intercept of the model is assumed to be zero.
     - Marginalization over sigma_noise and sigma_coefficient are performed.
 
         - Assume that target variable y is centralized.
-        - Assume that all features x are centralized and normalized.
         - Marginalization over intercept is performed.
 
     Parameters
@@ -128,10 +128,10 @@ class MarginalConstantRegression(object):
     Attributes
     ----------
     n_features_in_: int
-        Number of features seen during fit.
+        Always return 0 value, but prepared to unify api for regression models.
 
     coef_: List[float]
-        Coefficients of the regression model (mean of distribution).
+        Always return null list [], but prepared to unify api for regression models.
 
     log_likelihood_: float
         Log-likelihood of the model.
@@ -174,7 +174,8 @@ class MarginalConstantRegression(object):
             LinearRegression.validate_feature_standardization(
                 X, tolerance=self._preprocessing_tolerance
             )
-        self.n_features_in_ = X.shape[1]
+        self.n_features_in_ = 0
+        self.coef_: List[float] = []
 
         # Fit models
         fit_models: List[List[ConstantRegression]] = self._fit_models_over_sigma(
@@ -199,7 +200,6 @@ class MarginalConstantRegression(object):
 
         self.log_likelihood_ = log_likelihood
         self.log_likelihood_over_sigma_ = log_likelihood_over_sigma.tolist()
-        self.coef_: List[float] = []
 
     def _fit_models_over_sigma(self, X, y) -> List[List[ConstantRegression]]:
         fit_models: List[List[ConstantRegression]] = []
@@ -227,4 +227,7 @@ class MarginalConstantRegression(object):
         return log_likelihood
 
     def predict(self, X):
-        return 0
+        """
+        Since data is centralized, this method always returns 0 value.
+        """
+        return np.zeros(X.shape[0])

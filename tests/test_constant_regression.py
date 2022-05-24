@@ -18,6 +18,7 @@ def test_analytical_form_constant_regression(seed):
     Situation: n_data > n_features (data rich situation)
     """
     n_data, n_features = 50, 20
+    n_test = 1000
     sigma_noise = 0.1
     sigma_coef = 1
 
@@ -32,8 +33,10 @@ def test_analytical_form_constant_regression(seed):
     X = x_scaler.transform(X)
     y = y_scaler.transform(y)
 
+    test_X = np.random.randn(n_test, n_features)
+
     reg = ConstantRegression(sigma_noise=sigma_noise, sigma_coef=sigma_coef)
-    reg.fit(X, y)
+    reg.fit(np.array([]).reshape(n_data, -1), y)
 
     log_likelihood = (
         -n_data / 2 * np.log(2 * np.pi * sigma_noise ** 2)
@@ -43,3 +46,5 @@ def test_analytical_form_constant_regression(seed):
 
     assert [] == reg.coef_
     assert log_likelihood == reg.log_likelihood_
+
+    assert np.all(np.zeros(n_test) == reg.predict(test_X))
