@@ -8,11 +8,8 @@ from pydantic import BaseModel, Field
 from scipy.special import logsumexp
 from tqdm import tqdm
 
-from exhbma.linear_regression import (
-    LinearRegression,
-    MarginalLinearRegression,
-    MarginalNullRegression,
-)
+from exhbma.constant_regression import MarginalConstantRegression
+from exhbma.linear_regression import LinearRegression, MarginalLinearRegression
 from exhbma.probabilities import RandomVariable
 
 logger = logging.getLogger(__name__)
@@ -204,13 +201,13 @@ class ExhaustiveLinearRegression(object):
         Fit over (sigma_noise, sigma_coef) grid points and
         calculate log model likelihood by marginalizing.
         """
-        model: Union[MarginalNullRegression, MarginalLinearRegression] = (
+        model: Union[MarginalConstantRegression, MarginalLinearRegression] = (
             MarginalLinearRegression(
                 sigma_noise_points=self.sigma_noise_points,
                 sigma_coef_points=self.sigma_coef_points,
             )
             if len(X[0]) > 0
-            else MarginalNullRegression(
+            else MarginalConstantRegression(
                 sigma_noise_points=self.sigma_noise_points,
                 sigma_coef_points=self.sigma_coef_points,
             )
