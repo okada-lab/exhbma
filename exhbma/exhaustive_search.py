@@ -8,11 +8,8 @@ from pydantic import BaseModel, Field
 from scipy.special import logsumexp
 from tqdm import tqdm
 
-from exhbma.linear_regression import (
-    LinearRegression,
-    MarginalLinearRegression,
-    MarginalNullRegression,
-)
+from exhbma.constant_regression import MarginalConstantRegression
+from exhbma.linear_regression import LinearRegression, MarginalLinearRegression
 from exhbma.probabilities import RandomVariable
 
 logger = logging.getLogger(__name__)
@@ -139,15 +136,16 @@ class ExhaustiveLinearRegression(object):
         verbose: bool (default: True)
             If this is set to `True`, progress bar is displayed.
         """
-        self.n_features_in_: int = X.shape[1]
-
+        # Data validation
         LinearRegression.validate_target_centralization(
             y=y, tolerance=self._preprocessing_tolerance
         )
         LinearRegression.validate_feature_standardization(
             X=X, tolerance=self._preprocessing_tolerance
         )
+        self.n_features_in_: int = X.shape[1]
 
+        # Perform exhaustive search
         self.indicators_: List[List[int]] = self._generate_indicator(
             n_features=self.n_features_in_
         )
@@ -174,6 +172,7 @@ class ExhaustiveLinearRegression(object):
                 )
             )
 
+        # Marginalize the exhaustive search results
         self.log_likelihood_: float = self._calculate_log_marginal_likelihood(
             log_priors=self.log_priors_, models=self.models_
         )
@@ -202,13 +201,13 @@ class ExhaustiveLinearRegression(object):
         Fit over (sigma_noise, sigma_coef) grid points and
         calculate log model likelihood by marginalizing.
         """
-        model: Union[MarginalNullRegression, MarginalLinearRegression] = (
+        model: Union[MarginalConstantRegression, MarginalLinearRegression] = (
             MarginalLinearRegression(
                 sigma_noise_points=self.sigma_noise_points,
                 sigma_coef_points=self.sigma_coef_points,
             )
             if len(X[0]) > 0
-            else MarginalNullRegression(
+            else MarginalConstantRegression(
                 sigma_noise_points=self.sigma_noise_points,
                 sigma_coef_points=self.sigma_coef_points,
             )
