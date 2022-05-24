@@ -166,9 +166,7 @@ def test_generate_indicator():
     Test method `_generate_indicator` with manually generated indicators.
     """
     reg = ExhaustiveLinearRegression(
-        sigma_noise_points=[],
-        sigma_coef_points=[],
-        alpha=0.5,
+        sigma_noise_points=[], sigma_coef_points=[], alpha=0.5
     )
     n_features = 3
     indicators = reg._generate_indicator(n_features=n_features)
@@ -212,9 +210,7 @@ def test_fixed_alpha_prior_include_null():
     Null model is included.
     """
     reg = ExhaustiveLinearRegression(
-        sigma_noise_points=[],
-        sigma_coef_points=[],
-        alpha=0.5,
+        sigma_noise_points=[], sigma_coef_points=[], alpha=0.5
     )
     indicators = [
         [0, 0, 0],
@@ -239,10 +235,7 @@ def test_fixed_alpha_prior_exclude_null():
     Null model is excluded.
     """
     reg = ExhaustiveLinearRegression(
-        sigma_noise_points=[],
-        sigma_coef_points=[],
-        alpha=0.5,
-        exclude_null=True,
+        sigma_noise_points=[], sigma_coef_points=[], alpha=0.5, exclude_null=True
     )
     indicators = [
         [1, 0, 0],
@@ -267,9 +260,7 @@ def test_fixed_alpha_prior_not_half():
     Null model is included.
     """
     reg = ExhaustiveLinearRegression(
-        sigma_noise_points=[],
-        sigma_coef_points=[],
-        alpha=0.8,
+        sigma_noise_points=[], sigma_coef_points=[], alpha=0.8
     )
     indicators = [
         [0, 0, 0],
