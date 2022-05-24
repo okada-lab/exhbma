@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "exhbma"
-version = "0.1.9"
+version = "0.1.10"
 description = "Exhaustive Search with Bayesian Model Averaging"
 authors = ["Koki Obinata <koki.obi.321@gmail.com>"]
 packages = [
