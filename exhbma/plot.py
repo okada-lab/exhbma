@@ -145,7 +145,9 @@ def weight_diagram(
     if yticklabels is not None:
         yticks = np.arange(len(yticklabels)) + 0.5
         ax.set_yticks(yticks)
-        ax.set_yticklabels(yticklabels, fontsize=ticklabelsize)
+        ax.set_yticklabels(
+            yticklabels[:: 1 - 2 * int(column_downward)], fontsize=ticklabelsize
+        )
 
     xticks = np.append([1], np.arange(20, n_top + 1, 20))
     xticklabels = [str(x) for x in xticks]
