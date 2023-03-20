@@ -48,11 +48,11 @@ in a below example (:code:`scaling=False` is passed for :code:`y_scaler`).
    y = y_scaler.transform(y)
 
 
-For constructing an estimator model, prior distribution parameters for :math:`\sigma_{noise}`
-and :math:`\sigma_{coef}` need to be specified.
+For constructing an estimator model, prior distribution parameters for :math:`\sigma_{\text{noise}}`
+and :math:`\sigma_{\text{coef}}` need to be specified.
 You need to specify discrete points for the x-inverse distribution and
 these points are used for numerical integration (marginalization over
-:math:`\sigma_{noise}` and :math:`\sigma_{coef}`).
+:math:`\sigma_{\text{noise}}` and :math:`\sigma_{\text{coef}}`).
 
 Fit process will finish within a minute.
 
@@ -115,7 +115,7 @@ Sigma posterior distribution
 
 To confirm that defined range of prior distributions properly
 contains a peak of posterior distribution, plot the posterior distribution
-of hyperparameters :math:`\sigma_{noise}` and :math:`\sigma_{coef}`.
+of hyperparameters :math:`\sigma_{\text{noise}}` and :math:`\sigma_{\text{coef}}`.
 
 .. code:: python
 
@@ -129,7 +129,7 @@ of hyperparameters :math:`\sigma_{noise}` and :math:`\sigma_{coef}`.
 
 .. image:: images/linear_regression_sigma_posterior.png
 
-Peak of the distribution is near the :math:`(\sigma_{noise}, \sigma_{coef}) = (0.1, 0.8)`,
+Peak of the distribution is near the :math:`(\sigma_{\text{noise}}, \sigma_{\text{coef}}) = (0.1, 0.8)`,
 which is close to the predefined values.
 
 Coefficients
