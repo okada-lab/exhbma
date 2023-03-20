@@ -53,6 +53,7 @@ and :math:`\sigma_{\text{coef}}` need to be specified.
 You need to specify discrete points for the x-inverse distribution and
 these points are used for numerical integration (marginalization over
 :math:`\sigma_{\text{noise}}` and :math:`\sigma_{\text{coef}}`).
+The range of prior distributions should be wide enough to cover the peak of the posterior distribution.
 
 Fit process will finish within a minute.
 
