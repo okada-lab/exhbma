@@ -1,4 +1,4 @@
-from typing import Literal, cast, overload
+from typing import Literal, overload
 
 import numpy as np
 from scipy.special import logsumexp
@@ -83,7 +83,9 @@ def integrate_log_values_in_square(
             )
     val += np.log(area)
 
-    result = cast(tuple[float, int], logsumexp(val, b=np_weights, return_sign=True))
+    log_result, sign = logsumexp(val, b=np_weights, return_sign=True)
+    assert sign is not None
+    result = (float(log_result), int(sign))
     if expect_positive:
         if result[1] <= 0:
             raise ValueError("Result is not positive.")
@@ -159,7 +161,9 @@ def integrate_log_values_in_line(
         area += extended_x1[i + 1 : i + 1 + len(x1)] - extended_x1[i : i + len(x1)]
     val += np.log(area)
 
-    result = cast(tuple[float, int], logsumexp(val, b=np_weights, return_sign=True))
+    log_result, sign = logsumexp(val, b=np_weights, return_sign=True)
+    assert sign is not None
+    result = (float(log_result), int(sign))
     if expect_positive:
         if result[1] <= 0:
             raise ValueError("Result is not positive.")

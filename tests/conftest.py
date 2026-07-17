@@ -1,10 +1,7 @@
 import pytest
-from _pytest.config import Config
-from _pytest.config.argparsing import Parser
-from _pytest.nodes import Item
 
 
-def pytest_addoption(parser: Parser) -> None:
+def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--tutorial",
         action="store_true",
@@ -14,11 +11,13 @@ def pytest_addoption(parser: Parser) -> None:
     parser.addoption("--force-update", action="store_true", help="reset cache for test")
 
 
-def pytest_configure(config: Config) -> None:
+def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "tutorial: mark test as tutorial test cases")
 
 
-def pytest_collection_modifyitems(config: Config, items: list[Item]) -> None:
+def pytest_collection_modifyitems(
+    config: pytest.Config, items: list[pytest.Item]
+) -> None:
     if config.getoption("--tutorial"):
         # --tutorials given in cli: do not skip tutorial dataset tests
         return
