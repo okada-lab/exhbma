@@ -8,7 +8,7 @@ import pytest
 from exhbma import ExhaustiveLinearRegression, StandardScaler, gamma, inverse
 
 
-def pytest_convert(obj, expected: bool = False):
+def pytest_convert(obj: object, expected: bool = False) -> object:
     if isinstance(obj, float):
         if expected:
             return pytest.approx(obj)
@@ -23,8 +23,8 @@ def pytest_convert(obj, expected: bool = False):
         return obj
 
 
-def check_dict(obj: dict, expected: dict):
-    for key in obj.keys():
+def check_dict(obj: dict, expected: dict) -> None:
+    for key in obj:
         if isinstance(obj[key], dict):
             check_dict(obj[key], expected[key])
         else:
@@ -34,11 +34,13 @@ def check_dict(obj: dict, expected: dict):
 
 
 @pytest.mark.tutorial
-def test_exhbma_with_linear_regression(force_update: bool):
+def test_exhbma_with_linear_regression(force_update: bool) -> None:
     """
     Test tutorial code
     """
-    self_func_name = inspect.currentframe().f_code.co_name  # type: ignore
+    frame = inspect.currentframe()
+    assert frame is not None
+    self_func_name = frame.f_code.co_name
     cache_dir = Path(__file__).parent / "cache"
     cache_dir.mkdir(exist_ok=True)
     cache_file_path = cache_dir / f"{self_func_name}.json"
@@ -125,7 +127,7 @@ def test_exhbma_with_linear_regression(force_update: bool):
 
 
 @pytest.mark.tutorial
-def test_exhbma_with_linear_regression_with_inverse_prior(force_update: bool):
+def test_exhbma_with_linear_regression_with_inverse_prior(force_update: bool) -> None:
     """
     Test tutorial code
     """

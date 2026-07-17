@@ -5,7 +5,7 @@ from scipy import integrate
 from exhbma import gamma, inverse, uniform
 
 
-def test_gamma_wo_low_high():
+def test_gamma_wo_low_high() -> None:
     """
     Test method `gamma` with numerically defined gamma distribution.
     """
@@ -17,17 +17,17 @@ def test_gamma_wo_low_high():
     x = np.logspace(low, high, n_points)
     rvs = gamma(x, shape=shape, scale=scale)
 
-    def gamma_distribution(x):
+    def gamma_distribution(x: float | np.ndarray) -> float | np.ndarray:
         """Ignoring normalization constant"""
         return x ** (shape - 1) * np.exp(-x / scale)
 
     const, _ = integrate.quad(gamma_distribution, 10**low, 10**high)
     distribution = gamma_distribution(x) / const
-    for rv, d in zip(rvs, distribution):
+    for rv, d in zip(rvs, distribution, strict=True):
         assert rv.prob == pytest.approx(d)
 
 
-def test_gamma_with_different_low_high():
+def test_gamma_with_different_low_high() -> None:
     """
     Test method `gamma` with numerically defined gamma distribution.
     Set different low and high parameter for `x` and defined range.
@@ -40,17 +40,17 @@ def test_gamma_with_different_low_high():
     x = np.logspace(low + 1, high - 1, n_points)
     rvs = gamma(x, low=10**low, high=10**high, shape=shape, scale=scale)
 
-    def gamma_distribution(x):
+    def gamma_distribution(x: float | np.ndarray) -> float | np.ndarray:
         """Ignoring normalization constant"""
         return x ** (shape - 1) * np.exp(-x / scale)
 
     const, _ = integrate.quad(gamma_distribution, 10**low, 10**high)
     distribution = gamma_distribution(x) / const
-    for rv, d in zip(rvs, distribution):
+    for rv, d in zip(rvs, distribution, strict=True):
         assert rv.prob == pytest.approx(d)
 
 
-def test_uniform():
+def test_uniform() -> None:
     """
     Test method `uniform` with numerically defined uniform distribution.
     """
@@ -64,7 +64,7 @@ def test_uniform():
         assert rv.prob == pytest.approx(1 / (high - low))
 
 
-def test_inverse_wo_low_high():
+def test_inverse_wo_low_high() -> None:
     """
     Test method `inverse` with numerically defined gamma distribution.
     """
@@ -76,11 +76,11 @@ def test_inverse_wo_low_high():
 
     const = np.log(10**high) - np.log(10**low)
     distribution = 1 / (x * const)
-    for rv, d in zip(rvs, distribution):
+    for rv, d in zip(rvs, distribution, strict=False):
         assert rv.prob == pytest.approx(d)
 
 
-def test_inverse_with_different_low_high():
+def test_inverse_with_different_low_high() -> None:
     """
     Test method `inverse` with numerically defined gamma distribution.
     Set different low and high parameter for `x` and defined range.
@@ -93,5 +93,5 @@ def test_inverse_with_different_low_high():
 
     const = np.log(10**high) - np.log(10**low)
     distribution = 1 / (x * const)
-    for rv, d in zip(rvs, distribution):
+    for rv, d in zip(rvs, distribution, strict=False):
         assert rv.prob == pytest.approx(d)

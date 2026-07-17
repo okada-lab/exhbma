@@ -5,20 +5,22 @@ from exhbma import ExhaustiveLinearRegression, StandardScaler, inverse
 
 
 @pytest.fixture()
-def seed():
+def seed() -> int:
     val = 0
     np.random.seed(val)
     return val
 
 
-def check_basic_attribute_after_fit(model: ExhaustiveLinearRegression, n_features: int):
+def check_basic_attribute_after_fit(
+    model: ExhaustiveLinearRegression, n_features: int
+) -> None:
     assert model.n_features_in_ == n_features
     assert len(model.indicators_) == 2**n_features
 
 
 def check_feature_posteriors(
     model: ExhaustiveLinearRegression, n_features: int, nonzero_index: list[bool]
-):
+) -> None:
     assert len(model.feature_posteriors_) == n_features
     assert np.all(np.array(model.feature_posteriors_)[nonzero_index] > 0.9)
     assert np.all(
@@ -26,22 +28,24 @@ def check_feature_posteriors(
     )
 
 
-def check_linear_model(model: ExhaustiveLinearRegression, expect_coef: np.ndarray):
+def check_linear_model(
+    model: ExhaustiveLinearRegression, expect_coef: np.ndarray
+) -> None:
     assert model.coef_ == pytest.approx(expect_coef, rel=1e-1, abs=1e-3)
 
 
-def calculate_rmse(true_y, pred_y) -> float:
+def calculate_rmse(true_y: np.ndarray, pred_y: np.ndarray) -> float:
     return np.power(true_y - pred_y, 2).mean() ** 0.5
 
 
 def check_prediction(
     model: ExhaustiveLinearRegression,
-    test_X,
-    test_y,
-    x_scaler,
-    y_scaler,
+    test_X: np.ndarray,
+    test_y: np.ndarray,
+    x_scaler: StandardScaler,
+    y_scaler: StandardScaler,
     precision: float,
-):
+) -> None:
     pred_y = y_scaler.restore(model.predict(x_scaler.transform(test_X), mode="full"))
     assert calculate_rmse(test_y, pred_y) <= precision
 
@@ -49,7 +53,7 @@ def check_prediction(
     assert calculate_rmse(test_y, pred_y) <= precision
 
 
-def test_exhaustive_linear_regression(seed):
+def test_exhaustive_linear_regression(seed: int) -> None:
     """
     Test method `fit`.
     """
@@ -104,7 +108,7 @@ def test_exhaustive_linear_regression(seed):
     )
 
 
-def test_exhaustive_linear_regression_case_different_sigma_points(seed):
+def test_exhaustive_linear_regression_case_different_sigma_points(seed: int) -> None:
     """
     Test method `fit` when different sigma_points are passed.
     """
@@ -159,7 +163,7 @@ def test_exhaustive_linear_regression_case_different_sigma_points(seed):
     )
 
 
-def test_generate_indicator():
+def test_generate_indicator() -> None:
     """
     Test method `_generate_indicator` with manually generated indicators.
     """
@@ -181,7 +185,7 @@ def test_generate_indicator():
     assert indicators == expect
 
 
-def test_generate_indicator_excluding_null():
+def test_generate_indicator_excluding_null() -> None:
     """
     Test method `_generate_indicator` with manually generated indicators.
     """
@@ -202,7 +206,7 @@ def test_generate_indicator_excluding_null():
     assert indicators == expect
 
 
-def test_fixed_alpha_prior_include_null():
+def test_fixed_alpha_prior_include_null() -> None:
     """
     Test method `_fixed_alpha_prior` with manually calculated values.
     Null model is included.
@@ -227,7 +231,7 @@ def test_fixed_alpha_prior_include_null():
         )
 
 
-def test_fixed_alpha_prior_exclude_null():
+def test_fixed_alpha_prior_exclude_null() -> None:
     """
     Test method `_fixed_alpha_prior` with manually calculated values.
     Null model is excluded.
@@ -251,7 +255,7 @@ def test_fixed_alpha_prior_exclude_null():
         )
 
 
-def test_fixed_alpha_prior_not_half():
+def test_fixed_alpha_prior_not_half() -> None:
     """
     Test method `_fixed_alpha_prior` with manually calculated values
     when alpha is not 0.5.
@@ -271,5 +275,5 @@ def test_fixed_alpha_prior_not_half():
         [1, 1, 1],
     ]
     probs = [0.008, 0.032, 0.032, 0.128, 0.032, 0.128, 0.128, 0.512]
-    for indicator, p in zip(indicators, probs):
+    for indicator, p in zip(indicators, probs, strict=False):
         assert reg._fixed_alpha_prior(indicator=indicator) == pytest.approx(np.log(p))

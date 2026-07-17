@@ -21,13 +21,17 @@ def gamma(
     If low(high) is None, low(high) is set as the minimum(maximum) value of x.
     """
     if low is None:
-        low = min(x)
+        low = float(min(x))
     if high is None:
-        high = max(x)
+        high = float(max(x))
     rv = sp_gamma(a=shape, scale=scale)
-    norm = rv.cdf(x=high) - rv.cdf(x=low)
-    probs = rv.pdf(x=x) / norm
-    return [RandomVariable(position=i, prob=p) for (i, p) in zip(x, probs)]
+    norm = float(rv.cdf(x=high) - rv.cdf(x=low))
+    # scipy stubs type freeze() as continuous|discrete; gamma is continuous.
+    probs = np.asarray(rv.pdf(x=x), dtype=float) / norm  # pyright: ignore[reportAttributeAccessIssue]
+    return [
+        RandomVariable(position=float(i), prob=float(p))
+        for (i, p) in zip(x, probs, strict=True)
+    ]
 
 
 def uniform(x: np.ndarray, low: float = 0.0, high: float = 1.0) -> list[RandomVariable]:
@@ -54,4 +58,4 @@ def inverse(
 
     norm = np.log(high) - np.log(low)
     probs = (1 / x) / norm
-    return [RandomVariable(position=i, prob=p) for (i, p) in zip(x, probs)]
+    return [RandomVariable(position=i, prob=p) for (i, p) in zip(x, probs, strict=True)]

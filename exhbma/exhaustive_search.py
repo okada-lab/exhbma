@@ -1,6 +1,7 @@
 import logging
 from enum import Enum, auto
 from itertools import product
+from typing import cast
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -36,7 +37,7 @@ class PredictMode(Enum):
     full = auto()
 
 
-class ExhaustiveLinearRegression(object):
+class ExhaustiveLinearRegression:
     r"""
     ExhaustiveSearchModel with linear_model.LinearRegression
 
@@ -103,14 +104,14 @@ class ExhaustiveLinearRegression(object):
         sigma_coef_points: list[RandomVariable],
         alpha: float = 0.5,
         exclude_null: bool = False,
-    ):
+    ) -> None:
         self.sigma_noise_points = sigma_noise_points
         self.sigma_coef_points = sigma_coef_points
         self.alpha = alpha
         self.exclude_null = exclude_null
         self._preprocessing_tolerance = 1e-8
 
-    def fit(self, X: np.ndarray, y: np.ndarray, verbose: bool = True):
+    def fit(self, X: np.ndarray, y: np.ndarray, verbose: bool = True) -> None:
         """Train a model
 
         1. Create indicator vectors
@@ -188,7 +189,7 @@ class ExhaustiveLinearRegression(object):
         self.coef_: list[float] = coefficient
 
     def _fit_over_sigma_noise_and_coef(
-        self, X, y
+        self, X: np.ndarray, y: np.ndarray
     ) -> tuple[float, list[list[float]], list[float]]:
         """
         Fit over (sigma_noise, sigma_coef) grid points and
@@ -216,8 +217,14 @@ class ExhaustiveLinearRegression(object):
     def _calculate_log_marginal_likelihood(
         self, log_priors: list[float], models: list[ModelInfo]
     ) -> float:
-        log_likelihood = logsumexp(
-            [p + m.log_likelihood for (p, m) in zip(log_priors, models)]
+        log_likelihood = cast(
+            float,
+            logsumexp(
+                [
+                    p + m.log_likelihood
+                    for (p, m) in zip(log_priors, models, strict=True)
+                ]
+            ),
         )
         return log_likelihood
 
@@ -228,7 +235,7 @@ class ExhaustiveLinearRegression(object):
         models: list[ModelInfo],
     ) -> list[float]:
         log_joint_probabilities = [
-            p + m.log_likelihood for (p, m) in zip(log_priors, models)
+            p + m.log_likelihood for (p, m) in zip(log_priors, models, strict=True)
         ]
         log_marginal_likelihood = self._calculate_log_marginal_likelihood(
             log_priors=log_priors, models=models
@@ -238,7 +245,7 @@ class ExhaustiveLinearRegression(object):
         for column in range(np_indicators.shape[1]):
             indicator_values = np_indicators[:, column]
             log_marginals.append(
-                logsumexp(a=log_joint_probabilities, b=indicator_values)
+                cast(float, logsumexp(a=log_joint_probabilities, b=indicator_values))
                 - log_marginal_likelihood
             )
         return np.exp(log_marginals).tolist()
@@ -246,12 +253,15 @@ class ExhaustiveLinearRegression(object):
     def _calculate_log_marginal_likelihood_over_sigma(
         self, log_priors: list[float], models: list[ModelInfo]
     ) -> list[list[float]]:
-        log_likelihood_over_sigma = logsumexp(
-            [
-                np.array(m.log_likelihood_over_sigma) + p
-                for (m, p) in zip(models, log_priors)
-            ],
-            axis=0,
+        log_likelihood_over_sigma = cast(
+            np.ndarray,
+            logsumexp(
+                [
+                    np.array(m.log_likelihood_over_sigma) + p
+                    for (m, p) in zip(models, log_priors, strict=True)
+                ],
+                axis=0,
+            ),
         )
         return log_likelihood_over_sigma.tolist()
 
@@ -262,20 +272,23 @@ class ExhaustiveLinearRegression(object):
         models: list[ModelInfo],
     ) -> list[float]:
         log_joint_probabilities = [
-            p + m.log_likelihood for (p, m) in zip(log_priors, models)
+            p + m.log_likelihood for (p, m) in zip(log_priors, models, strict=True)
         ]
         log_marginal_likelihood = self._calculate_log_marginal_likelihood(
             log_priors=log_priors, models=models
         )
         np_coefficient = np.zeros((len(models), self.n_features_in_))
-        for i, (m, indicator) in enumerate(zip(models, indicators)):
+        for i, (m, indicator) in enumerate(zip(models, indicators, strict=True)):
             np_coefficient[i, np.array(indicator) == 1] = m.coefficient
 
         coefficient = []
         for column in range(np_coefficient.shape[1]):
             coefficient_values = np_coefficient[:, column]
-            result = logsumexp(
-                a=log_joint_probabilities, b=coefficient_values, return_sign=True
+            result = cast(
+                tuple[float, int],
+                logsumexp(
+                    a=log_joint_probabilities, b=coefficient_values, return_sign=True
+                ),
             )
             coefficient.append(result[1] * np.exp(result[0] - log_marginal_likelihood))
 
@@ -350,17 +363,17 @@ class ExhaustiveLinearRegression(object):
         """
         try:
             predict_mode = PredictMode[mode]
-        except KeyError:
+        except KeyError as err:
             raise ValueError(
-                "Invalid mode: `{}` specified. Mode should be either of {}".format(
-                    mode, list(PredictMode.__members__)
-                )
-            )
+                f"Invalid mode: `{mode}` specified. Mode should be either of {list(PredictMode.__members__)}"
+            ) from err
 
         if predict_mode == PredictMode.select:
             pred = self._predict_by_select(X=X, threshold=threshold)
         elif predict_mode == PredictMode.full:
             pred = self._predict_by_full(X=X)
+        else:
+            raise ValueError(f"Unhandled predict mode: {predict_mode}")
         return pred
 
     def _predict_by_select(self, X: np.ndarray, threshold: float = 0.5) -> np.ndarray:

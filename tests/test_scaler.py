@@ -4,7 +4,7 @@ import pytest
 from exhbma import StandardScaler
 
 
-def test_1_dimension():
+def test_1_dimension() -> None:
     """
     Test array is 1-dimension case.
     """
@@ -24,7 +24,7 @@ def test_1_dimension():
     assert scaler.restore(scaler.transform(X)) == pytest.approx(X)
 
 
-def test_2_dimension():
+def test_2_dimension() -> None:
     """
     Test array is 2-dimension case.
     """
@@ -50,7 +50,7 @@ def test_2_dimension():
     assert scaler.restore(scaler.transform(X)) == pytest.approx(X)
 
 
-def test_wo_scaling():
+def test_wo_scaling() -> None:
     """
     Test option scaling == False case.
     """

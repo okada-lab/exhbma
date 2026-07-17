@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-class ConstantRegression(object):
+class ConstantRegression:
     """
     Model description:
 
@@ -46,14 +46,14 @@ class ConstantRegression(object):
         Marginalization is performed over sigma_noise, sigma_coef, indicators.
     """
 
-    def __init__(self, sigma_noise: float, sigma_coef: float):
+    def __init__(self, sigma_noise: float, sigma_coef: float) -> None:
         self.sigma_noise = sigma_noise
         self.sigma_coef = sigma_coef
         self._preprocessing_tolerance = 1e-8
 
     def fit(
         self, X: np.ndarray, y: np.ndarray, skip_preprocessing_validation: bool = False
-    ):
+    ) -> None:
         """
         Calculate log likelihood for this data.
 
@@ -77,7 +77,7 @@ class ConstantRegression(object):
         self.coef_: list[float] = []
         self.log_likelihood_ = self._calculate_log_likelihood(y=y)
 
-    def _calculate_log_likelihood(self, y: np.ndarray):
+    def _calculate_log_likelihood(self, y: np.ndarray) -> float:
         """
         Calculate log Likelihood for constant model.
         log p = - N/2 log(2 pi * sigma_noise**2)
@@ -95,14 +95,14 @@ class ConstantRegression(object):
         log_likelihood = const + log_exp + log_intercept
         return log_likelihood
 
-    def predict(self, X):
+    def predict(self, X: np.ndarray) -> np.ndarray:
         """
         Since data is centralized, this method always returns 0 value.
         """
         return np.zeros(X.shape[0])
 
 
-class MarginalConstantRegression(object):
+class MarginalConstantRegression:
     r"""
     Model description:
 
@@ -145,14 +145,14 @@ class MarginalConstantRegression(object):
         self,
         sigma_noise_points: list[RandomVariable],
         sigma_coef_points: list[RandomVariable],
-    ):
+    ) -> None:
         self.sigma_noise_points = sigma_noise_points
         self.sigma_coef_points = sigma_coef_points
         self._preprocessing_tolerance = 1e-8
 
     def fit(
         self, X: np.ndarray, y: np.ndarray, skip_preprocessing_validation: bool = False
-    ):
+    ) -> None:
         """
         Calculate log likelihood for this data.
 
@@ -199,7 +199,9 @@ class MarginalConstantRegression(object):
         self.log_likelihood_ = log_likelihood
         self.log_likelihood_over_sigma_ = log_likelihood_over_sigma.tolist()
 
-    def _fit_models_over_sigma(self, X, y) -> list[list[ConstantRegression]]:
+    def _fit_models_over_sigma(
+        self, X: np.ndarray, y: np.ndarray
+    ) -> list[list[ConstantRegression]]:
         fit_models: list[list[ConstantRegression]] = []
         for sigma_noise in self.sigma_noise_points:
             models_along_coef = []
@@ -214,7 +216,7 @@ class MarginalConstantRegression(object):
 
     def _integrate_log_likelihood_over_sigma(
         self,
-        log_joint_probabilities,
+        log_joint_probabilities: np.ndarray,
     ) -> float:
         # Marginalize over sigma_noise and sigma_coef
         log_likelihood = integrate_log_values_in_square(
@@ -224,7 +226,7 @@ class MarginalConstantRegression(object):
         )
         return log_likelihood
 
-    def predict(self, X):
+    def predict(self, X: np.ndarray) -> np.ndarray:
         """
         Since data is centralized, this method always returns 0 value.
         """
