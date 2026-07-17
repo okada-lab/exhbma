@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from importlib.metadata import PackageNotFoundError, version as pkg_version
 
 sys.path.insert(0, os.path.abspath("../.."))
 
@@ -22,8 +23,12 @@ project = "ExhBMA"
 copyright = "2022-2026, Koki Obinata"
 author = "Koki Obinata"
 
-version = "0.2"
-release = "0.2.1"
+try:
+    release = pkg_version("exhbma")
+except PackageNotFoundError:
+    # Fallback when the package is not installed (e.g. local docs-only checkout)
+    release = "dev"
+version = ".".join(release.split(".")[:2])
 
 
 # -- General configuration ---------------------------------------------------
