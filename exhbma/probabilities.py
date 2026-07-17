@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 from pydantic import BaseModel, Field
 from scipy.stats import gamma as sp_gamma
@@ -58,7 +56,7 @@ def inverse(
     if high is None:
         high = float(max(x))
 
-    norm = math.log(high) - math.log(low)
+    norm = float(np.log(high) - np.log(low))
     probs = (1 / x) / norm
     return [
         RandomVariable(position=float(i), prob=float(p))
