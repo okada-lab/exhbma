@@ -1,6 +1,10 @@
+from collections.abc import Sequence
+
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.axes import Axes
+from matplotlib.colors import Colormap, LinearSegmentedColormap
+from matplotlib.figure import Figure
 
 from exhbma import ExhaustiveLinearRegression
 
@@ -18,12 +22,12 @@ def feature_posterior(
     xlabel: str | None = None,
     ylabel: str | None = None,
     labelsize: float = DEFAULT_LABELSIZE,
-    xticklabels=None,
+    xticklabels: Sequence[str] | None = None,
     xrot: float = 90,
     yticklabels: list[float] | None = None,
     ticklabelsize: float = DEFAULT_TICKLABELSIZE,
     hlines: list[float] | None = None,
-):
+) -> tuple[Figure, Axes]:
     """
     Plot posterior probability that each feature is included in the model.
 
@@ -46,7 +50,7 @@ def feature_posterior(
     ax.bar(index, prob, color=color)
 
     # Set upper limits slightly over the maximum for visibility.
-    ax.set_ylim([0, 1.05])
+    ax.set_ylim(0, 1.05)
 
     # Set labels
     if title is not None:
@@ -64,7 +68,7 @@ def feature_posterior(
         ax.set_xticklabels(xticklabels, fontsize=ticklabelsize, rotation=xrot)
     yticks = yticklabels
     ax.set_yticks(yticks)
-    ax.set_yticklabels(yticklabels, fontsize=ticklabelsize)
+    ax.set_yticklabels([str(y) for y in yticklabels], fontsize=ticklabelsize)
 
     if hlines is not None:
         for hline in hlines:
@@ -89,7 +93,7 @@ def weight_diagram(
     labelsize: float = DEFAULT_LABELSIZE,
     yticklabels: list[str] | None = None,
     ticklabelsize: float = DEFAULT_TICKLABELSIZE,
-):
+) -> tuple[Figure, Axes]:
     """
     Plot weight diagram of trained exhaustive search model.
 
@@ -114,7 +118,7 @@ def weight_diagram(
     sorted_index = np.argsort(model.log_likelihoods_)[::-1][:n_top]
     if vmax is None and vmin is None:
         vrange = np.abs(coefs[sorted_index, :]).max()
-        vmax, vmin = vrange, -vrange
+        vmax, vmin = float(vrange), float(-vrange)
     else:
         if vmax is None and vmin is not None:
             assert vmin < 0
@@ -150,9 +154,9 @@ def weight_diagram(
         )
 
     xticks: np.ndarray = np.append([1], np.arange(20, n_top + 1, 20))
-    xticklabels = [str(x) for x in xticks]
+    xtick_labels = [str(x) for x in xticks]
     ax.set_xticks(xticks)
-    ax.set_xticklabels(xticklabels, fontsize=ticklabelsize)
+    ax.set_xticklabels(xtick_labels, fontsize=ticklabelsize)
 
     return fig, ax
 
@@ -161,19 +165,19 @@ def sigma_posterior(
     model: ExhaustiveLinearRegression,
     plot_range: float = 10,
     figsize: tuple[float, float] | None = None,
-    cmap=None,
+    cmap: Colormap | str | None = None,
     title: str | None = None,
     titlesize: float = DEFAULT_LABELSIZE,
     xlabel: str | None = None,
     ylabel: str | None = None,
     cbarlabel: str | None = None,
     labelsize: float = DEFAULT_LABELSIZE,
-    xticks=None,
-    xticklabels=None,
-    yticks=None,
-    yticklabels=None,
+    xticks: list[float] | None = None,
+    xticklabels: list[str] | None = None,
+    yticks: list[float] | None = None,
+    yticklabels: list[str] | None = None,
     ticklabelsize: float = DEFAULT_TICKLABELSIZE,
-):
+) -> tuple[Figure, Axes]:
     """
     Plot posterior probability of hyperparameter (sigma_w, sigma_epsilon).
 
@@ -233,9 +237,10 @@ def sigma_posterior(
     return fig, ax
 
 
-def _make_log_labels(values) -> tuple[list[float], list[str]]:
+def _make_log_labels(values: Sequence[float]) -> tuple[list[float], list[str]]:
     vmin, vmax = min(values), max(values)
-    ticks, ticklabels = [], []
+    ticks: list[float] = []
+    ticklabels: list[str] = []
     for i in range(int(np.log10(vmin)) - 1, int(np.log10(vmax)) + 1):
         val = 10**i
         if vmin <= val <= vmax:

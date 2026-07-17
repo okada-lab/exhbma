@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-class LinearRegression(object):
+class LinearRegression:
     """
     Model description:
 
@@ -47,14 +47,14 @@ class LinearRegression(object):
         Marginalization is performed over sigma_noise, sigma_coef, indicators.
     """
 
-    def __init__(self, sigma_noise: float, sigma_coef: float):
+    def __init__(self, sigma_noise: float, sigma_coef: float) -> None:
         self.sigma_noise = sigma_noise
         self.sigma_coef = sigma_coef
         self._preprocessing_tolerance = 1e-8
 
     def fit(
         self, X: np.ndarray, y: np.ndarray, skip_preprocessing_validation: bool = False
-    ):
+    ) -> None:
         """
         Calculate coefficient used in prediction and log likelihood for this data.
 
@@ -90,7 +90,7 @@ class LinearRegression(object):
         vh: np.ndarray,
         vhXTy: np.ndarray,
         y: np.ndarray,
-    ):
+    ) -> None:
         """
         Calculate coefficient and log-likelihood using SVD component of X.
         """
@@ -99,7 +99,9 @@ class LinearRegression(object):
 
         self.log_likelihood_ = self._calculate_log_likelihood(uTy=uTy, s=s, y=y)
 
-    def _calculate_coefficient(self, s: np.ndarray, vh: np.ndarray, vhXTy: np.ndarray):
+    def _calculate_coefficient(
+        self, s: np.ndarray, vh: np.ndarray, vhXTy: np.ndarray
+    ) -> np.ndarray:
         """
         Calculate coefficient using SVD component of X.
         X = u @ np.diag(s) @ vh
@@ -117,7 +119,9 @@ class LinearRegression(object):
         mu = np.dot(vh.T, vhXTy / eigvals_lambda)
         return mu
 
-    def _calculate_log_likelihood(self, uTy: np.ndarray, s: np.ndarray, y: np.ndarray):
+    def _calculate_log_likelihood(
+        self, uTy: np.ndarray, s: np.ndarray, y: np.ndarray
+    ) -> float:
         """
         Calculate log likelihood using SVD component of X.
         X = u @ np.diag(s) @ vh
@@ -146,7 +150,7 @@ class LinearRegression(object):
         return log_likelihood
 
     @staticmethod
-    def _validate_training_data_shape(X, y):
+    def _validate_training_data_shape(X: np.ndarray, y: np.ndarray) -> None:
         """
         Validate training data X and y.
         Check list:
@@ -155,17 +159,17 @@ class LinearRegression(object):
         """
         if len(X.shape) != 2:
             raise ValueError(
-                "X is expect to be 2-dim array. Actual {}-dim.".format(len(X.shape))
+                f"X is expect to be 2-dim array. Actual {len(X.shape)}-dim."
             )
         if len(X) != len(y):
             raise ValueError(
-                "Data sizes are different between X({}) and y({}).".format(
-                    len(X), len(y)
-                )
+                f"Data sizes are different between X({len(X)}) and y({len(y)})."
             )
 
     @staticmethod
-    def validate_feature_standardization(X, tolerance: float = 1e-8):
+    def validate_feature_standardization(
+        X: np.ndarray, tolerance: float = 1e-8
+    ) -> None:
         for i in range(X.shape[1]):
             x = X[:, i]
             x_mean = np.mean(x)
@@ -188,7 +192,7 @@ class LinearRegression(object):
                 raise ValueError(f"Feature in column-{i} is not normalized.")
 
     @staticmethod
-    def validate_target_centralization(y, tolerance: float = 1e-8):
+    def validate_target_centralization(y: np.ndarray, tolerance: float = 1e-8) -> None:
         y_mean = np.mean(y)
         if np.abs(y_mean) > tolerance:
             logger.error(
@@ -198,7 +202,7 @@ class LinearRegression(object):
             )
             raise ValueError("Target variable is not centralized.")
 
-    def predict(self, X):
+    def predict(self, X: np.ndarray) -> np.ndarray:
         """
         Prediction using trained model.
 
@@ -209,7 +213,7 @@ class LinearRegression(object):
         return pred
 
 
-class MarginalLinearRegression(object):
+class MarginalLinearRegression:
     r"""
     Model description:
 
@@ -254,14 +258,14 @@ class MarginalLinearRegression(object):
         self,
         sigma_noise_points: list[RandomVariable],
         sigma_coef_points: list[RandomVariable],
-    ):
+    ) -> None:
         self.sigma_noise_points = sigma_noise_points
         self.sigma_coef_points = sigma_coef_points
         self._preprocessing_tolerance = 1e-8
 
     def fit(
         self, X: np.ndarray, y: np.ndarray, skip_preprocessing_validation: bool = False
-    ):
+    ) -> None:
         """
         Calculate coefficient used in prediction and log likelihood for this data.
 
@@ -318,7 +322,9 @@ class MarginalLinearRegression(object):
         self.log_likelihood_over_sigma_ = log_likelihood_over_sigma.tolist()
         self.coef_ = coefficient
 
-    def _fit_models_over_sigma(self, X, y) -> list[list[LinearRegression]]:
+    def _fit_models_over_sigma(
+        self, X: np.ndarray, y: np.ndarray
+    ) -> list[list[LinearRegression]]:
         u, s, vh = np.linalg.svd(X, full_matrices=True)
         uTy = np.dot(u.T, y)
         XTy = np.dot(X.T, y)
@@ -338,7 +344,7 @@ class MarginalLinearRegression(object):
 
     def _integrate_log_likelihood_over_sigma(
         self,
-        log_joint_probabilities,
+        log_joint_probabilities: np.ndarray,
     ) -> float:
         # Marginalize over sigma_noise and sigma_coef
         log_likelihood = integrate_log_values_in_square(
@@ -352,7 +358,7 @@ class MarginalLinearRegression(object):
         self,
         index: int,
         fit_models: list[list[LinearRegression]],
-        log_joint_probabilities,
+        log_joint_probabilities: np.ndarray,
         log_likelihood: float,
     ) -> float:
         coefficient_weights = [
@@ -368,7 +374,7 @@ class MarginalLinearRegression(object):
         )
         return result[1] * np.exp(result[0])
 
-    def predict(self, X):
+    def predict(self, X: np.ndarray) -> np.ndarray:
         """
         Prediction using trained model.
 

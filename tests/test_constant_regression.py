@@ -5,13 +5,13 @@ from exhbma import ConstantRegression, StandardScaler
 
 
 @pytest.fixture()
-def seed():
+def seed() -> int:
     val = 0
     np.random.seed(val)
     return val
 
 
-def test_analytical_form_constant_regression(seed):
+def test_analytical_form_constant_regression(seed: int) -> None:
     """
     Test method `fit` of constant regression against
     straightforward analytical calculation.
@@ -44,7 +44,7 @@ def test_analytical_form_constant_regression(seed):
         + 1 / 2 * np.log(sigma_noise**2 / (n_data * np.var(y) + sigma_noise**2))
     )
 
-    assert [] == reg.coef_
+    assert reg.coef_ == []
     assert log_likelihood == reg.log_likelihood_
 
     assert np.all(np.zeros(n_test) == reg.predict(test_X))

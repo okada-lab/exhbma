@@ -11,7 +11,7 @@ from exhbma import (
 
 
 @pytest.fixture()
-def seed():
+def seed() -> int:
     val = 0
     np.random.seed(val)
     return val
@@ -19,15 +19,17 @@ def seed():
 
 def check_linear_model(
     model: LinearRegression | MarginalLinearRegression, expect_coef: np.ndarray
-):
+) -> None:
     assert model.coef_ == pytest.approx(expect_coef, rel=1e-1)
 
 
-def calculate_rmse(true_y, pred_y) -> float:
+def calculate_rmse(true_y: np.ndarray, pred_y: np.ndarray) -> float:
     return np.power(true_y - pred_y, 2).mean() ** 0.5
 
 
-def _calculate_analytical_form(X, y, sigma_noise: float, sigma_coef: float):
+def _calculate_analytical_form(
+    X: np.ndarray, y: np.ndarray, sigma_noise: float, sigma_coef: float
+) -> tuple[np.ndarray, float]:
     """Calculation by analytical form"""
     n_data = X.shape[0]
 
@@ -47,11 +49,11 @@ def _calculate_analytical_form(X, y, sigma_noise: float, sigma_coef: float):
 
 def compare_straightforward_analytical_form(
     model: LinearRegression,
-    X,
-    y,
+    X: np.ndarray,
+    y: np.ndarray,
     sigma_noise: float,
     sigma_coef: float,
-):
+) -> None:
     """
     Compare against straightforward analytical form because in LinearRegression class,
     calculation are performed more effectively.
@@ -67,7 +69,7 @@ def compare_straightforward_analytical_form(
     assert model.log_likelihood_ == pytest.approx(log_likelihood)
 
 
-def test_linear_model_case_large_n_data(seed):
+def test_linear_model_case_large_n_data(seed: int) -> None:
     """
     Test method `fit` by comparing against true linear model and test data.
     Noises are added so assertAlmostEqual's `places` is set loose.
@@ -102,7 +104,7 @@ def test_linear_model_case_large_n_data(seed):
     assert calculate_rmse(test_y, pred_y) <= sigma_noise
 
 
-def test_analytical_form_case_n_data_gt_n_features(seed):
+def test_analytical_form_case_n_data_gt_n_features(seed: int) -> None:
     """
     Test method `fit` against straightforward analytical calculation.
     Situation: n_data > n_features (data rich situation)
@@ -134,7 +136,7 @@ def test_analytical_form_case_n_data_gt_n_features(seed):
     )
 
 
-def test_analytical_form_case_n_data_lt_n_features(seed):
+def test_analytical_form_case_n_data_lt_n_features(seed: int) -> None:
     """
     Test method `fit` against straightforward analytical calculation.
     Situation: n_data < n_features (data needed situation)
@@ -166,7 +168,7 @@ def test_analytical_form_case_n_data_lt_n_features(seed):
     )
 
 
-def test_analytical_form_case_n_data_eq_n_features():
+def test_analytical_form_case_n_data_eq_n_features() -> None:
     """
     Test method `fit` against straightforward calculation.
     Situation: n_data == n_features
@@ -199,7 +201,7 @@ def test_analytical_form_case_n_data_eq_n_features():
     )
 
 
-def test_validate_target_centralization(seed):
+def test_validate_target_centralization(seed: int) -> None:
     """
     Test method `validate_target_centralization`.
     """
@@ -211,7 +213,7 @@ def test_validate_target_centralization(seed):
     LinearRegression.validate_target_centralization(y=y, tolerance=tolerance)
 
 
-def test_validate_feature_standardization(seed):
+def test_validate_feature_standardization(seed: int) -> None:
     """
     Test method `validate_feature_standardization`.
     """
@@ -223,7 +225,7 @@ def test_validate_feature_standardization(seed):
     LinearRegression.validate_feature_standardization(X=X, tolerance=tolerance)
 
 
-def test_error_validate_target_centralization(seed):
+def test_error_validate_target_centralization(seed: int) -> None:
     """
     Test error case of method `validate_target_centralization`.
     """
@@ -237,7 +239,7 @@ def test_error_validate_target_centralization(seed):
         LinearRegression.validate_target_centralization(y=y, tolerance=tolerance)
 
 
-def test_error_validate_feature_centralization(seed):
+def test_error_validate_feature_centralization(seed: int) -> None:
     """
     Test error case of method `validate_feature_standardization`
     when feature is not centralized.
@@ -256,7 +258,7 @@ def test_error_validate_feature_centralization(seed):
         LinearRegression.validate_feature_standardization(X=X, tolerance=tolerance)
 
 
-def test_error_validate_feature_normalization(seed):
+def test_error_validate_feature_normalization(seed: int) -> None:
     """
     Test error case of method `validate_feature_standardization`
     when feature is not normalized.
@@ -275,7 +277,7 @@ def test_error_validate_feature_normalization(seed):
         LinearRegression.validate_feature_standardization(X=X, tolerance=tolerance)
 
 
-def test_validate_training_data_shape():
+def test_validate_training_data_shape() -> None:
     """
     Test method `_validate_training_data_shape`.
     """
@@ -285,7 +287,7 @@ def test_validate_training_data_shape():
     LinearRegression._validate_training_data_shape(X, y)
 
 
-def test_error_validate_X_shape_1dim():
+def test_error_validate_X_shape_1dim() -> None:
     """
     Test error case of method `_validate_training_data_shape`
     when X's shape is 1 dimension.
@@ -301,7 +303,7 @@ def test_error_validate_X_shape_1dim():
         reg._validate_training_data_shape(X, y)
 
 
-def test_error_validate_different_data_size():
+def test_error_validate_different_data_size() -> None:
     """
     Test error case of method `_validate_training_data_shape`
     when data size is different.
@@ -317,7 +319,7 @@ def test_error_validate_different_data_size():
         reg._validate_training_data_shape(X, y)
 
 
-def test_marginal_linear_regression(seed):
+def test_marginal_linear_regression(seed: int) -> None:
     """
     Test method `fit` in a simple case.
     """

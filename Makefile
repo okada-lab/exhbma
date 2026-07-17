@@ -1,24 +1,12 @@
-.PHONY: isort
-isort:
-	uv run isort ./exhbma ./tests
-
-.PHONY: black
-black:
-	uv run black ./exhbma ./tests
-
 .PHONY: format
-format: isort black
-
-.PHONY: flake8
-flake8:
-	uv run flake8 ./exhbma ./tests
-
-.PHONY: mypy
-mypy:
-	uv run mypy --no-site-packages ./exhbma ./tests
+format:
+	uv run ruff format ./exhbma ./tests
+	uv run ruff check --fix ./exhbma ./tests
 
 .PHONY: lint
-lint: flake8 mypy
+lint:
+	uv run ruff check ./exhbma ./tests
+	uv run pyright
 
 .PHONY: test
 test:

@@ -1,5 +1,28 @@
+from typing import Literal, overload
+
 import numpy as np
 from scipy.special import logsumexp
+
+
+@overload
+def integrate_log_values_in_square(
+    log_values: list[list[float]],
+    x1: list[float],
+    x2: list[float],
+    weights: list[list[float]] | None = None,
+    expect_positive: Literal[True] = True,
+) -> float: ...
+
+
+@overload
+def integrate_log_values_in_square(
+    log_values: list[list[float]],
+    x1: list[float],
+    x2: list[float],
+    weights: list[list[float]] | None = None,
+    *,
+    expect_positive: Literal[False],
+) -> tuple[float, int]: ...
 
 
 def integrate_log_values_in_square(
@@ -8,7 +31,7 @@ def integrate_log_values_in_square(
     x2: list[float],
     weights: list[list[float]] | None = None,
     expect_positive: bool = True,
-):
+) -> float | tuple[float, int]:
     r"""
     Integrate box region.
     \int weight * exp(log_value) dx1 dx2
@@ -34,9 +57,7 @@ def integrate_log_values_in_square(
     np_log_values = np.array(log_values)
     if np_log_values.shape != (len(x1), len(x2)):
         raise ValueError(
-            "Invalid shape, log_values: {}, axis: {}".format(
-                np_log_values.shape, (len(x1), len(x2))
-            )
+            f"Invalid shape, log_values: {np_log_values.shape}, axis: {(len(x1), len(x2))}"
         )
 
     if weights is None:
@@ -45,9 +66,7 @@ def integrate_log_values_in_square(
         np_weights = np.array(weights)
         if np_weights.shape != np_log_values.shape:
             raise ValueError(
-                "Invalid shape, weights: {}, log_values: {}".format(
-                    np_weights.shape, np_log_values.shape
-                )
+                f"Invalid shape, weights: {np_weights.shape}, log_values: {np_log_values.shape}"
             )
 
     val = np_log_values - np.log(4)
@@ -64,7 +83,9 @@ def integrate_log_values_in_square(
             )
     val += np.log(area)
 
-    result = logsumexp(val, b=np_weights, return_sign=True)
+    log_result, sign = logsumexp(val, b=np_weights, return_sign=True)
+    assert sign is not None
+    result = (float(log_result), int(sign))
     if expect_positive:
         if result[1] <= 0:
             raise ValueError("Result is not positive.")
@@ -74,12 +95,31 @@ def integrate_log_values_in_square(
         return result
 
 
+@overload
+def integrate_log_values_in_line(
+    log_values: list[float],
+    x1: list[float],
+    weights: list[float] | None = None,
+    expect_positive: Literal[True] = True,
+) -> float: ...
+
+
+@overload
+def integrate_log_values_in_line(
+    log_values: list[float],
+    x1: list[float],
+    weights: list[float] | None = None,
+    *,
+    expect_positive: Literal[False],
+) -> tuple[float, int]: ...
+
+
 def integrate_log_values_in_line(
     log_values: list[float],
     x1: list[float],
     weights: list[float] | None = None,
     expect_positive: bool = True,
-):
+) -> float | tuple[float, int]:
     """
     Integrate along line.
 
@@ -100,9 +140,7 @@ def integrate_log_values_in_line(
     np_log_values = np.array(log_values)
     if np_log_values.shape != (len(x1),):
         raise ValueError(
-            "Invalid shape, log_values: {}, axis: {}".format(
-                np_log_values.shape, (len(x1),)
-            )
+            f"Invalid shape, log_values: {np_log_values.shape}, axis: {(len(x1),)}"
         )
 
     if weights is None:
@@ -111,9 +149,7 @@ def integrate_log_values_in_line(
         np_weights = np.array(weights)
         if np_weights.shape != np_log_values.shape:
             raise ValueError(
-                "Invalid shape, weights: {}, log_values: {}".format(
-                    np_weights.shape, np_log_values.shape
-                )
+                f"Invalid shape, weights: {np_weights.shape}, log_values: {np_log_values.shape}"
             )
 
     val = np_log_values - np.log(2)
@@ -125,7 +161,9 @@ def integrate_log_values_in_line(
         area += extended_x1[i + 1 : i + 1 + len(x1)] - extended_x1[i : i + len(x1)]
     val += np.log(area)
 
-    result = logsumexp(val, b=np_weights, return_sign=True)
+    log_result, sign = logsumexp(val, b=np_weights, return_sign=True)
+    assert sign is not None
+    result = (float(log_result), int(sign))
     if expect_positive:
         if result[1] <= 0:
             raise ValueError("Result is not positive.")
@@ -135,12 +173,12 @@ def integrate_log_values_in_line(
         return result
 
 
-def validate_list_dimension(x, dim: int, name: str):
+def validate_list_dimension(x: object, dim: int, name: str) -> None:
     if not isinstance(x, list):
-        raise ValueError("{} must be list, received `{}`".format(name, type(x)))
+        raise ValueError(f"{name} must be list, received `{type(x)}`")
 
     np_x = np.array(x)
     if len(np_x.shape) != dim:
         raise ValueError(
-            "{} must be {}-dim list, received {}-dim".format(name, dim, len(np_x.shape))
+            f"{name} must be {dim}-dim list, received {len(np_x.shape)}-dim"
         )

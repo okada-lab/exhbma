@@ -8,14 +8,14 @@ from exhbma import (
 )
 
 
-def test_integrate_log_values_in_square():
+def test_integrate_log_values_in_square() -> None:
     """
     Function: f(x, y) = x^2*y^2 + x^2 + y^2
     Integral region: (x, y) in R^2, 0 <= x <= 1, 1 <= y <= 2
     Answer: 31/9
     """
 
-    def func(x, y):
+    def func(x: np.ndarray, y: np.ndarray) -> np.ndarray:
         return x**2 * y**2 + x**2 + y**2
 
     expect = np.log(31 / 9)
@@ -32,7 +32,7 @@ def test_integrate_log_values_in_square():
     assert result == pytest.approx(expect, rel=1e-3)
 
 
-def test_integrate_log_values_in_square_with_weights():
+def test_integrate_log_values_in_square_with_weights() -> None:
     """
     Function: f(x, y) = x^2*y^2 + x^2 + y^2
     Weight: -1
@@ -40,7 +40,7 @@ def test_integrate_log_values_in_square_with_weights():
     Answer: -31/9
     """
 
-    def func(x, y):
+    def func(x: np.ndarray, y: np.ndarray) -> np.ndarray:
         return x**2 * y**2 + x**2 + y**2
 
     expect = np.log(31 / 9)
@@ -63,7 +63,7 @@ def test_integrate_log_values_in_square_with_weights():
     assert result[1] == -1
 
 
-def test_error_different_shape_integrate_log_values_in_square():
+def test_error_different_shape_integrate_log_values_in_square() -> None:
     """
     Test error case of integrate_log_values_in_square
     when shape of log_values and (x1, x2) are different.
@@ -78,7 +78,7 @@ def test_error_different_shape_integrate_log_values_in_square():
         integrate_log_values_in_square(log_values=log_values, x1=x1, x2=x2)
 
 
-def test_error_different_weight_shape_integrate_log_values_in_square():
+def test_error_different_weight_shape_integrate_log_values_in_square() -> None:
     """
     Test error case of integrate_log_values_in_square
     when shape of log_values and weights are different.
@@ -96,13 +96,13 @@ def test_error_different_weight_shape_integrate_log_values_in_square():
         )
 
 
-def test_error_negative_when_expect_positive_integrate_log_values_in_square():
+def test_error_negative_when_expect_positive_integrate_log_values_in_square() -> None:
     """
     Test error case of integrate_log_values_in_square
     when calculation results are negative with `expect_positive=True` option.
     """
 
-    def func(x, y):
+    def func(x: np.ndarray, y: np.ndarray) -> np.ndarray:
         return x**2 * y**2 + x**2 + y**2
 
     n_x1, n_x2 = 30, 40
@@ -122,14 +122,14 @@ def test_error_negative_when_expect_positive_integrate_log_values_in_square():
         )
 
 
-def test_integrate_log_values_in_line():
+def test_integrate_log_values_in_line() -> None:
     """
     Function: f(x, y) = x^2 + x + 1
     Integral region: 1 <= x <= 3
     Answer: 44/3
     """
 
-    def func(x):
+    def func(x: np.ndarray) -> np.ndarray:
         return x**2 + x + 1
 
     expect = np.log(44 / 3)
@@ -143,7 +143,7 @@ def test_integrate_log_values_in_line():
     assert result == pytest.approx(expect, rel=1e-3)
 
 
-def test_integrate_log_values_in_line_with_weights():
+def test_integrate_log_values_in_line_with_weights() -> None:
     """
     Function: f(x, y) = x^2 + x + 1
     Weight: -1
@@ -151,7 +151,7 @@ def test_integrate_log_values_in_line_with_weights():
     Answer: -44/3
     """
 
-    def func(x):
+    def func(x: np.ndarray) -> np.ndarray:
         return x**2 + x + 1
 
     expect = np.log(44 / 3)
@@ -170,7 +170,7 @@ def test_integrate_log_values_in_line_with_weights():
     assert result[1] == -1
 
 
-def test_error_different_shape_integrate_log_values_in_line():
+def test_error_different_shape_integrate_log_values_in_line() -> None:
     """
     Test error case of integrate_log_values_in_line
     when shape of log_values and (x1, x2) are different.
@@ -184,7 +184,7 @@ def test_error_different_shape_integrate_log_values_in_line():
         integrate_log_values_in_line(log_values=log_values, x1=x1)
 
 
-def test_error_different_weight_shape_integrate_log_values_in_line():
+def test_error_different_weight_shape_integrate_log_values_in_line() -> None:
     """
     Test error case of integrate_log_values_in_line
     when shape of log_values and weights are different.
@@ -199,13 +199,13 @@ def test_error_different_weight_shape_integrate_log_values_in_line():
         integrate_log_values_in_line(log_values=log_values, x1=x1, weights=weights)
 
 
-def test_error_negative_when_expect_positive_integrate_log_values_in_line():
+def test_error_negative_when_expect_positive_integrate_log_values_in_line() -> None:
     """
     Test error case of integrate_log_values_in_line
     when calculation results are negative with `expect_positive=True` option.
     """
 
-    def func(x):
+    def func(x: np.ndarray) -> np.ndarray:
         return x**2 + x + 1
 
     n_x1 = 30
@@ -221,19 +221,19 @@ def test_error_negative_when_expect_positive_integrate_log_values_in_line():
         )
 
 
-def test_validate_list_dimension():
+def test_validate_list_dimension() -> None:
     validate_list_dimension(x=[0, 0, 0], dim=1, name="vector")
     validate_list_dimension(x=[[0, 0, 0], [0, 0, 0]], dim=2, name="matrix")
 
 
-def test_validate_list_dimension_type():
+def test_validate_list_dimension_type() -> None:
     with pytest.raises(
         ValueError, match="vector must be list, received `<class 'numpy.ndarray'>`"
     ):
         validate_list_dimension(x=np.array([0, 0, 0]), dim=1, name="vector")
 
 
-def test_validate_list_dimension_dimension():
+def test_validate_list_dimension_dimension() -> None:
     with pytest.raises(ValueError, match="vector must be 1-dim list, received 2-dim"):
         validate_list_dimension(x=[[0, 0, 0], [0, 0, 0]], dim=1, name="vector")
 

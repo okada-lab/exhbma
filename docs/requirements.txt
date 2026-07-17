@@ -3,20 +3,14 @@ alabaster==1.0.0
     # via sphinx
 annotated-types==0.7.0
     # via pydantic
-ast-serialize==0.6.0
-    # via mypy
 babel==2.18.0
     # via sphinx
-black==26.5.1
 certifi==2026.6.17
     # via requests
 charset-normalizer==3.4.9
     # via requests
-click==8.4.2
-    # via black
 colorama==0.4.6 ; sys_platform == 'win32'
     # via
-    #   click
     #   pytest
     #   sphinx
     #   tqdm
@@ -30,7 +24,6 @@ docutils==0.22.4
     # via
     #   sphinx
     #   sphinx-rtd-theme
-flake8==7.3.0
 fonttools==4.63.0
     # via matplotlib
 idna==3.18
@@ -39,24 +32,16 @@ imagesize==2.0.0
     # via sphinx
 iniconfig==2.3.0
     # via pytest
-isort==8.0.1
 jinja2==3.1.6
     # via sphinx
 kiwisolver==1.5.0
     # via matplotlib
-librt==0.13.0 ; platform_python_implementation != 'PyPy'
-    # via mypy
 markupsafe==3.0.3
     # via jinja2
 matplotlib==3.11.0
     # via exhbma
-mccabe==0.7.0
-    # via flake8
-mypy==2.3.0
-mypy-extensions==1.1.0
-    # via
-    #   black
-    #   mypy
+nodeenv==1.10.0
+    # via pyright
 numpy==2.4.6 ; python_full_version < '3.12'
     # via
     #   contourpy
@@ -71,47 +56,36 @@ numpy==2.5.1 ; python_full_version >= '3.12'
     #   scipy
 packaging==26.2
     # via
-    #   black
     #   matplotlib
     #   pytest
     #   sphinx
-pathspec==1.1.1
-    # via
-    #   black
-    #   mypy
 pillow==12.3.0
     # via matplotlib
-platformdirs==4.10.0
-    # via black
 pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-pycodestyle==2.14.0
-    # via flake8
 pydantic==2.13.4
     # via exhbma
 pydantic-core==2.46.4
     # via pydantic
-pyflakes==3.4.0
-    # via flake8
 pygments==2.20.0
     # via
     #   pytest
     #   sphinx
 pyparsing==3.3.2
     # via matplotlib
+pyright==1.1.411
 pytest==9.1.1
     # via pytest-cov
 pytest-cov==7.1.0
 python-dateutil==2.9.0.post0
     # via matplotlib
-pytokens==0.4.1
-    # via black
 requests==2.34.2
     # via sphinx
 roman-numerals==4.1.0
     # via sphinx
+ruff==0.15.22
 scipy==1.17.1 ; python_full_version < '3.12'
     # via exhbma
 scipy==1.18.0 ; python_full_version >= '3.12'
@@ -147,12 +121,11 @@ tomli==2.4.1 ; python_full_version <= '3.11'
     # via coverage
 tqdm==4.68.4
     # via exhbma
-types-setuptools==83.0.0.20260716
 typing-extensions==4.16.0
     # via
-    #   mypy
     #   pydantic
     #   pydantic-core
+    #   pyright
     #   typing-inspection
 typing-inspection==0.4.2
     # via pydantic
