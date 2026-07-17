@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 import numpy as np
 
@@ -39,7 +38,7 @@ class ConstantRegression(object):
     n_features_in_: int
         Always return 0 value, but prepared to unify api for regression models.
 
-    coef_: List[float]
+    coef_: list[float]
         Always return null list [], but prepared to unify api for regression models.
 
     log_likelihood_: float
@@ -75,7 +74,7 @@ class ConstantRegression(object):
             )
         self.n_features_in_ = 0
 
-        self.coef_: List[float] = []
+        self.coef_: list[float] = []
         self.log_likelihood_ = self._calculate_log_likelihood(y=y)
 
     def _calculate_log_likelihood(self, y: np.ndarray):
@@ -87,12 +86,11 @@ class ConstantRegression(object):
         """
         n_data = len(y)
 
-        const = -n_data / 2 * (np.log(2 * np.pi) + np.log(self.sigma_noise ** 2))
-        log_exp = -1 / 2 * np.dot(y, y) / self.sigma_noise ** 2
+        const = -n_data / 2 * (np.log(2 * np.pi) + np.log(self.sigma_noise**2))
+        log_exp = -1 / 2 * np.dot(y, y) / self.sigma_noise**2
         var_y = np.var(y)
         log_intercept = (
-            np.log(self.sigma_noise ** 2)
-            - np.log(n_data * var_y + self.sigma_noise ** 2)
+            np.log(self.sigma_noise**2) - np.log(n_data * var_y + self.sigma_noise**2)
         ) / 2
         log_likelihood = const + log_exp + log_intercept
         return log_likelihood
@@ -118,10 +116,10 @@ class MarginalConstantRegression(object):
 
     Parameters
     ----------
-    sigma_noise_points: List[RandomVariable]
+    sigma_noise_points: list[RandomVariable]
         Data points to marginalize over sigma_noise parameter.
 
-    sigma_coef_points: List[RandomVariable]
+    sigma_coef_points: list[RandomVariable]
         Data points to marginalize over sigma_coef parameter.
 
 
@@ -130,14 +128,14 @@ class MarginalConstantRegression(object):
     n_features_in_: int
         Always return 0 value, but prepared to unify api for regression models.
 
-    coef_: List[float]
+    coef_: list[float]
         Always return null list [], but prepared to unify api for regression models.
 
     log_likelihood_: float
         Log-likelihood of the model.
         Marginalization is performed over sigma_noise, sigma_coef, indicators.
 
-    log_likelihood_over_sigma_: List[List[float]]
+    log_likelihood_over_sigma_: list[list[float]]
         Log-likelihood over :math:`\sigma_{noise}` and :math:`\sigma_{coef}`,
         :math:`p(y| \sigma_{noise}, \sigma_{coef}, X)`.
         Prior distributions for both sigma are not included.
@@ -145,8 +143,8 @@ class MarginalConstantRegression(object):
 
     def __init__(
         self,
-        sigma_noise_points: List[RandomVariable],
-        sigma_coef_points: List[RandomVariable],
+        sigma_noise_points: list[RandomVariable],
+        sigma_coef_points: list[RandomVariable],
     ):
         self.sigma_noise_points = sigma_noise_points
         self.sigma_coef_points = sigma_coef_points
@@ -175,10 +173,10 @@ class MarginalConstantRegression(object):
                 X, tolerance=self._preprocessing_tolerance
             )
         self.n_features_in_ = 0
-        self.coef_: List[float] = []
+        self.coef_: list[float] = []
 
         # Fit models
-        fit_models: List[List[ConstantRegression]] = self._fit_models_over_sigma(
+        fit_models: list[list[ConstantRegression]] = self._fit_models_over_sigma(
             X=X, y=y
         )
 
@@ -201,8 +199,8 @@ class MarginalConstantRegression(object):
         self.log_likelihood_ = log_likelihood
         self.log_likelihood_over_sigma_ = log_likelihood_over_sigma.tolist()
 
-    def _fit_models_over_sigma(self, X, y) -> List[List[ConstantRegression]]:
-        fit_models: List[List[ConstantRegression]] = []
+    def _fit_models_over_sigma(self, X, y) -> list[list[ConstantRegression]]:
+        fit_models: list[list[ConstantRegression]] = []
         for sigma_noise in self.sigma_noise_points:
             models_along_coef = []
             for sigma_coef in self.sigma_coef_points:

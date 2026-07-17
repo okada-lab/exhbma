@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 import numpy as np
 
@@ -40,7 +39,7 @@ class LinearRegression(object):
     n_features_in_: int
         Number of features seen during fit.
 
-    coef_: List[float]
+    coef_: list[float]
         Coefficients of the regression model (mean of distribution).
 
     log_likelihood_: float
@@ -111,9 +110,9 @@ class LinearRegression(object):
         """
         n_features = vh.shape[1]
         eigvals_XTX = np.zeros(n_features)
-        eigvals_XTX[: len(s)] = s ** 2
+        eigvals_XTX[: len(s)] = s**2
         # Put sigma_noise into eigvals_lambda
-        eigvals_lambda = eigvals_XTX + self.sigma_noise ** 2 / self.sigma_coef ** 2
+        eigvals_lambda = eigvals_XTX + self.sigma_noise**2 / self.sigma_coef**2
 
         mu = np.dot(vh.T, vhXTy / eigvals_lambda)
         return mu
@@ -133,16 +132,15 @@ class LinearRegression(object):
         """
         n_data = len(y)
         eigvals_XXT = np.zeros(n_data)
-        eigvals_XXT[: len(s)] = s ** 2
-        eigvals_cov = self.sigma_noise ** 2 + self.sigma_coef ** 2 * eigvals_XXT
+        eigvals_XXT[: len(s)] = s**2
+        eigvals_cov = self.sigma_noise**2 + self.sigma_coef**2 * eigvals_XXT
 
         const = -n_data / 2 * np.log(2 * np.pi)
         log_det = -1 / 2 * np.log(eigvals_cov).sum()
         log_exp = -1 / 2 * np.dot(uTy, uTy / eigvals_cov)
         var_y = np.var(y)
         log_intercept = (
-            np.log(self.sigma_noise ** 2)
-            - np.log(n_data * var_y + self.sigma_noise ** 2)
+            np.log(self.sigma_noise**2) - np.log(n_data * var_y + self.sigma_noise**2)
         ) / 2
         log_likelihood = const + log_det + log_exp + log_intercept
         return log_likelihood
@@ -227,10 +225,10 @@ class MarginalLinearRegression(object):
 
     Parameters
     ----------
-    sigma_noise_points: List[RandomVariable]
+    sigma_noise_points: list[RandomVariable]
         Data points to marginalize over sigma_noise parameter.
 
-    sigma_coef_points: List[RandomVariable]
+    sigma_coef_points: list[RandomVariable]
         Data points to marginalize over sigma_coef parameter.
 
 
@@ -239,14 +237,14 @@ class MarginalLinearRegression(object):
     n_features_in_: int
         Number of features seen during fit.
 
-    coef_: List[float]
+    coef_: list[float]
         Coefficients of the regression model (mean of distribution).
 
     log_likelihood_: float
         Log-likelihood of the model.
         Marginalization is performed over sigma_noise, sigma_coef, indicators.
 
-    log_likelihood_over_sigma_: List[List[float]]
+    log_likelihood_over_sigma_: list[list[float]]
         Log-likelihood over :math:`\sigma_{noise}` and :math:`\sigma_{coef}`,
         :math:`p(y| \sigma_{noise}, \sigma_{coef}, X)`.
         Prior distributions for both sigma are not included.
@@ -254,8 +252,8 @@ class MarginalLinearRegression(object):
 
     def __init__(
         self,
-        sigma_noise_points: List[RandomVariable],
-        sigma_coef_points: List[RandomVariable],
+        sigma_noise_points: list[RandomVariable],
+        sigma_coef_points: list[RandomVariable],
     ):
         self.sigma_noise_points = sigma_noise_points
         self.sigma_coef_points = sigma_coef_points
@@ -286,7 +284,7 @@ class MarginalLinearRegression(object):
         self.n_features_in_ = X.shape[1]
 
         # Fit models
-        fit_models: List[List[LinearRegression]] = self._fit_models_over_sigma(X=X, y=y)
+        fit_models: list[list[LinearRegression]] = self._fit_models_over_sigma(X=X, y=y)
 
         # Calculate log likelihood
         log_likelihood_over_sigma = np.array(
@@ -320,13 +318,13 @@ class MarginalLinearRegression(object):
         self.log_likelihood_over_sigma_ = log_likelihood_over_sigma.tolist()
         self.coef_ = coefficient
 
-    def _fit_models_over_sigma(self, X, y) -> List[List[LinearRegression]]:
+    def _fit_models_over_sigma(self, X, y) -> list[list[LinearRegression]]:
         u, s, vh = np.linalg.svd(X, full_matrices=True)
         uTy = np.dot(u.T, y)
         XTy = np.dot(X.T, y)
         vhXTy = np.dot(vh, XTy)
 
-        fit_models: List[List[LinearRegression]] = []
+        fit_models: list[list[LinearRegression]] = []
         for sigma_noise in self.sigma_noise_points:
             models_along_coef = []
             for sigma_coef in self.sigma_coef_points:
@@ -353,7 +351,7 @@ class MarginalLinearRegression(object):
     def _integrate_coefficient_over_sigma(
         self,
         index: int,
-        fit_models: List[List[LinearRegression]],
+        fit_models: list[list[LinearRegression]],
         log_joint_probabilities,
         log_likelihood: float,
     ) -> float:

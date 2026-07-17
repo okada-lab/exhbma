@@ -1,4 +1,4 @@
-import pkg_resources
+from importlib.metadata import PackageNotFoundError, version
 
 from .constant_regression import ConstantRegression, MarginalConstantRegression
 from .exhaustive_search import ExhaustiveLinearRegression
@@ -13,7 +13,7 @@ from .probabilities import RandomVariable, gamma, inverse, uniform
 from .scaler import StandardScaler
 
 try:
-    __version__ = pkg_resources.get_distribution("exhbma").version
-except pkg_resources.DistributionNotFound:
+    __version__ = version("exhbma")
+except PackageNotFoundError:
     # Only for document generation
     __version__ = "dev"

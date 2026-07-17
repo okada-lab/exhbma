@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 import numpy as np
 from pydantic import BaseModel, Field
 from scipy.stats import gamma as sp_gamma
@@ -12,11 +10,11 @@ class RandomVariable(BaseModel):
 
 def gamma(
     x: np.ndarray,
-    low: Optional[float] = None,
-    high: Optional[float] = None,
+    low: float | None = None,
+    high: float | None = None,
     shape: float = 1e-3,
     scale: float = 1e3,
-) -> List[RandomVariable]:
+) -> list[RandomVariable]:
     """
     Gamma distribution: x ~ (const.) * x^(shape - 1) * exp(- x / scale)
     Distribution is limited on range of [low, high].
@@ -32,7 +30,7 @@ def gamma(
     return [RandomVariable(position=i, prob=p) for (i, p) in zip(x, probs)]
 
 
-def uniform(x: np.ndarray, low: float = 0.0, high: float = 1.0) -> List[RandomVariable]:
+def uniform(x: np.ndarray, low: float = 0.0, high: float = 1.0) -> list[RandomVariable]:
     """
     Uniform distribution: p(x) = 1 / (high - low)
     """
@@ -42,9 +40,9 @@ def uniform(x: np.ndarray, low: float = 0.0, high: float = 1.0) -> List[RandomVa
 
 def inverse(
     x: np.ndarray,
-    low: Optional[float] = None,
-    high: Optional[float] = None,
-) -> List[RandomVariable]:
+    low: float | None = None,
+    high: float | None = None,
+) -> list[RandomVariable]:
     """
     x-inverse distribution: p(x) = 1 / x
     This distribution becomes proper when finite interval is considered.
