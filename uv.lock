@@ -336,11 +336,11 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "matplotlib", specifier = ">=3.8,<4.0" },
-    { name = "numpy", specifier = ">=2.0,<3.0" },
-    { name = "pydantic", specifier = ">=2.0,<3.0" },
-    { name = "scipy", specifier = ">=1.14,<2.0" },
-    { name = "tqdm", specifier = ">=4.66,<5.0" },
+    { name = "matplotlib", specifier = ">=3.6.0,<4.0" },
+    { name = "numpy", specifier = ">=1.23.2,<3.0" },
+    { name = "pydantic", specifier = ">=1.10,<3.0" },
+    { name = "scipy", specifier = ">=1.9.2,<2.0" },
+    { name = "tqdm", specifier = ">=4.64.1,<5.0" },
 ]
 
 [package.metadata.requires-dev]
