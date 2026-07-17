@@ -15,7 +15,7 @@ flake8:
 
 .PHONY: mypy
 mypy:
-	uv run mypy ./exhbma ./tests
+	uv run mypy --no-site-packages ./exhbma ./tests
 
 .PHONY: lint
 lint: flake8 mypy

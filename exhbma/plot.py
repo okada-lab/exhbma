@@ -20,7 +20,7 @@ def feature_posterior(
     labelsize: float = DEFAULT_LABELSIZE,
     xticklabels=None,
     xrot: float = 90,
-    yticklabels: list[float] = [0, 0.2, 0.4, 0.6, 0.8, 1],
+    yticklabels: list[float] | None = None,
     ticklabelsize: float = DEFAULT_TICKLABELSIZE,
     hlines: list[float] | None = None,
 ):
@@ -32,6 +32,9 @@ def feature_posterior(
     model: ExhaustiveLinearRegression
         A trained ExhaustiveLinearRegression model.
     """
+    if yticklabels is None:
+        yticklabels = [0, 0.2, 0.4, 0.6, 0.8, 1]
+
     prob = model.feature_posteriors_
     index = np.arange(model.n_features_in_)
 
@@ -59,10 +62,9 @@ def feature_posterior(
         xticks = np.arange(len(xticklabels))
         ax.set_xticks(xticks)
         ax.set_xticklabels(xticklabels, fontsize=ticklabelsize, rotation=xrot)
-    if yticklabels is not None:
-        yticks = yticklabels
-        ax.set_yticks(yticks)
-        ax.set_yticklabels(yticklabels, fontsize=ticklabelsize)
+    yticks = yticklabels
+    ax.set_yticks(yticks)
+    ax.set_yticklabels(yticklabels, fontsize=ticklabelsize)
 
     if hlines is not None:
         for hline in hlines:

@@ -64,13 +64,20 @@ exclude = '''
 '''
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.11"
 ignore_missing_imports = true
 check_untyped_defs = true
 follow_imports = "silent"
 
 [[tool.mypy.overrides]]
-module = ["numpy.*", "scipy.*", "matplotlib.*"]
+module = [
+    "numpy",
+    "numpy.*",
+    "scipy",
+    "scipy.*",
+    "matplotlib",
+    "matplotlib.*",
+]
 follow_imports = "skip"
 
 [tool.coverage.run]
