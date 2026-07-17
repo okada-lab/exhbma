@@ -10,8 +10,8 @@ class StandardScaler:
 
     def fit(self, array: np.ndarray) -> None:
         if self.n_dim == 1:
-            self.mean = np.mean(array)
-            self.std = np.mean((array - self.mean) ** 2) ** 0.5
+            self.mean = float(np.mean(array))
+            self.std = float(np.mean((array - self.mean) ** 2) ** 0.5)
         elif self.n_dim == 2:
             self.mean = np.mean(array, axis=0)
             self.std = np.mean((array - self.mean) ** 2, axis=0) ** 0.5

@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 from pydantic import BaseModel, Field
 from scipy.stats import gamma as sp_gamma
@@ -52,10 +54,13 @@ def inverse(
     This distribution becomes proper when finite interval is considered.
     """
     if low is None:
-        low = min(x)
+        low = float(min(x))
     if high is None:
-        high = max(x)
+        high = float(max(x))
 
-    norm = np.log(high) - np.log(low)
+    norm = math.log(high) - math.log(low)
     probs = (1 / x) / norm
-    return [RandomVariable(position=i, prob=p) for (i, p) in zip(x, probs, strict=True)]
+    return [
+        RandomVariable(position=float(i), prob=float(p))
+        for (i, p) in zip(x, probs, strict=True)
+    ]
