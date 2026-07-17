@@ -1,7 +1,6 @@
 import inspect
 import json
 from pathlib import Path
-from typing import Dict
 
 import numpy as np
 import pytest
@@ -24,7 +23,7 @@ def pytest_convert(obj, expected: bool = False):
         return obj
 
 
-def check_dict(obj: Dict, expected: Dict):
+def check_dict(obj: dict, expected: dict):
     for key in obj.keys():
         if isinstance(obj[key], dict):
             check_dict(obj[key], expected[key])
@@ -88,7 +87,7 @@ def test_exhbma_with_linear_regression(force_update: bool):
     reg.fit(X, y)
 
     # Results
-    result: Dict = {}
+    result: dict = {}
 
     # Feature posterior
     result["feature_posteriors_"] = reg.feature_posteriors_
@@ -108,7 +107,7 @@ def test_exhbma_with_linear_regression(force_update: bool):
     result["log_likelihood_"] = reg.log_likelihood_
 
     # Prediction for new data
-    n_test = 10 ** 3
+    n_test = 10**3
 
     np.random.seed(10)
     test_X = np.random.randn(n_test, n_features)
@@ -179,7 +178,7 @@ def test_exhbma_with_linear_regression_with_inverse_prior(force_update: bool):
     reg.fit(X, y)
 
     # Results
-    result: Dict = {}
+    result: dict = {}
 
     # Feature posterior
     result["feature_posteriors_"] = reg.feature_posteriors_
@@ -199,7 +198,7 @@ def test_exhbma_with_linear_regression_with_inverse_prior(force_update: bool):
     result["log_likelihood_"] = reg.log_likelihood_
 
     # Prediction for new data
-    n_test = 10 ** 3
+    n_test = 10**3
 
     np.random.seed(10)
     test_X = np.random.randn(n_test, n_features)

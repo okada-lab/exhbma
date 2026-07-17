@@ -1,14 +1,12 @@
-from typing import List, Optional
-
 import numpy as np
 from scipy.special import logsumexp
 
 
 def integrate_log_values_in_square(
-    log_values: List[List[float]],
-    x1: List[float],
-    x2: List[float],
-    weights: Optional[List[List[float]]] = None,
+    log_values: list[list[float]],
+    x1: list[float],
+    x2: list[float],
+    weights: list[list[float]] | None = None,
     expect_positive: bool = True,
 ):
     r"""
@@ -18,13 +16,13 @@ def integrate_log_values_in_square(
     log_values: 2 dimension array with shape (len(x1), len(x2))
         Log values to be integrated over x1 and x2 axes.
 
-    x1: List[float]
+    x1: list[float]
         1st axis points.
 
-    x2: List[float]
+    x2: list[float]
         2nd axis points.
 
-    weights: Optional[List[List[float]]], default: None
+    weights: list[list[float]] | None, default: None
         Weights to log_values.
 
     expect_positive: bool, default: True
@@ -77,9 +75,9 @@ def integrate_log_values_in_square(
 
 
 def integrate_log_values_in_line(
-    log_values: List[float],
-    x1: List[float],
-    weights: Optional[List[float]] = None,
+    log_values: list[float],
+    x1: list[float],
+    weights: list[float] | None = None,
     expect_positive: bool = True,
 ):
     """
@@ -88,10 +86,10 @@ def integrate_log_values_in_line(
     log_values: 1 dimension array with length len(x1)
         Log values to be integrated along x1
 
-    x1: List[float]
+    x1: list[float]
         1st axis points.
 
-    weights: Optional[List[float]], default: None
+    weights: list[float] | None, default: None
         Weights to log_values.
 
     expect_positive: bool, default: True

@@ -39,9 +39,9 @@ def test_analytical_form_constant_regression(seed):
     reg.fit(np.array([]).reshape(n_data, -1), y)
 
     log_likelihood = (
-        -n_data / 2 * np.log(2 * np.pi * sigma_noise ** 2)
-        - 1 / 2 * np.dot(y, y) / sigma_noise ** 2
-        + 1 / 2 * np.log(sigma_noise ** 2 / (n_data * np.var(y) + sigma_noise ** 2))
+        -n_data / 2 * np.log(2 * np.pi * sigma_noise**2)
+        - 1 / 2 * np.dot(y, y) / sigma_noise**2
+        + 1 / 2 * np.log(sigma_noise**2 / (n_data * np.var(y) + sigma_noise**2))
     )
 
     assert [] == reg.coef_

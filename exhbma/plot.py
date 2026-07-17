@@ -1,5 +1,3 @@
-from typing import List, Optional, Tuple
-
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
@@ -13,18 +11,18 @@ DEFAULT_TICKLABELSIZE = 18
 
 def feature_posterior(
     model: ExhaustiveLinearRegression,
-    figsize: Optional[Tuple[float, float]] = None,
+    figsize: tuple[float, float] | None = None,
     color: str = "gray",
-    title: Optional[str] = None,
+    title: str | None = None,
     titlesize: float = DEFAULT_LABELSIZE,
-    xlabel: Optional[str] = None,
-    ylabel: Optional[str] = None,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
     labelsize: float = DEFAULT_LABELSIZE,
     xticklabels=None,
     xrot: float = 90,
-    yticklabels: List[float] = [0, 0.2, 0.4, 0.6, 0.8, 1],
+    yticklabels: list[float] | None = None,
     ticklabelsize: float = DEFAULT_TICKLABELSIZE,
-    hlines: Optional[List[float]] = None,
+    hlines: list[float] | None = None,
 ):
     """
     Plot posterior probability that each feature is included in the model.
@@ -34,6 +32,9 @@ def feature_posterior(
     model: ExhaustiveLinearRegression
         A trained ExhaustiveLinearRegression model.
     """
+    if yticklabels is None:
+        yticklabels = [0, 0.2, 0.4, 0.6, 0.8, 1]
+
     prob = model.feature_posteriors_
     index = np.arange(model.n_features_in_)
 
@@ -61,10 +62,9 @@ def feature_posterior(
         xticks = np.arange(len(xticklabels))
         ax.set_xticks(xticks)
         ax.set_xticklabels(xticklabels, fontsize=ticklabelsize, rotation=xrot)
-    if yticklabels is not None:
-        yticks = yticklabels
-        ax.set_yticks(yticks)
-        ax.set_yticklabels(yticklabels, fontsize=ticklabelsize)
+    yticks = yticklabels
+    ax.set_yticks(yticks)
+    ax.set_yticklabels(yticklabels, fontsize=ticklabelsize)
 
     if hlines is not None:
         for hline in hlines:
@@ -76,18 +76,18 @@ def feature_posterior(
 def weight_diagram(
     model: ExhaustiveLinearRegression,
     n_top: int = 100,
-    figsize: Optional[Tuple[float, float]] = None,
+    figsize: tuple[float, float] | None = None,
     column_downward: bool = True,
     cmap: str = "RdBu_r",
-    vmax: Optional[float] = None,
-    vmin: Optional[float] = None,
-    title: Optional[str] = None,
+    vmax: float | None = None,
+    vmin: float | None = None,
+    title: str | None = None,
     titlesize: float = DEFAULT_LABELSIZE,
-    xlabel: Optional[str] = None,
-    ylabel: Optional[str] = None,
-    cbarlabel: Optional[str] = None,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
+    cbarlabel: str | None = None,
     labelsize: float = DEFAULT_LABELSIZE,
-    yticklabels: Optional[List[str]] = None,
+    yticklabels: list[str] | None = None,
     ticklabelsize: float = DEFAULT_TICKLABELSIZE,
 ):
     """
@@ -149,7 +149,7 @@ def weight_diagram(
             yticklabels[:: 1 - 2 * int(column_downward)], fontsize=ticklabelsize
         )
 
-    xticks = np.append([1], np.arange(20, n_top + 1, 20))
+    xticks: np.ndarray = np.append([1], np.arange(20, n_top + 1, 20))
     xticklabels = [str(x) for x in xticks]
     ax.set_xticks(xticks)
     ax.set_xticklabels(xticklabels, fontsize=ticklabelsize)
@@ -160,13 +160,13 @@ def weight_diagram(
 def sigma_posterior(
     model: ExhaustiveLinearRegression,
     plot_range: float = 10,
-    figsize: Optional[Tuple[float, float]] = None,
+    figsize: tuple[float, float] | None = None,
     cmap=None,
-    title: Optional[str] = None,
+    title: str | None = None,
     titlesize: float = DEFAULT_LABELSIZE,
-    xlabel: Optional[str] = None,
-    ylabel: Optional[str] = None,
-    cbarlabel: Optional[str] = None,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
+    cbarlabel: str | None = None,
     labelsize: float = DEFAULT_LABELSIZE,
     xticks=None,
     xticklabels=None,
@@ -233,14 +233,14 @@ def sigma_posterior(
     return fig, ax
 
 
-def _make_log_labels(values) -> Tuple[List[float], List[str]]:
+def _make_log_labels(values) -> tuple[list[float], list[str]]:
     vmin, vmax = min(values), max(values)
     ticks, ticklabels = [], []
     for i in range(int(np.log10(vmin)) - 1, int(np.log10(vmax)) + 1):
-        val = 10 ** i
+        val = 10**i
         if vmin <= val <= vmax:
-            fmt = f"$10^{{{i}}}$" if i not in [0, 1] else str(10 ** i)
+            fmt = f"$10^{{{i}}}$" if i not in [0, 1] else str(10**i)
             index = np.searchsorted(values, val)
-            ticks.append(index + 0.5)
+            ticks.append(float(index + 0.5))
             ticklabels.append(fmt)
     return ticks, ticklabels

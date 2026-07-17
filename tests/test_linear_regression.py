@@ -1,5 +1,3 @@
-from typing import Union
-
 import numpy as np
 import pytest
 from scipy.special import logsumexp
@@ -20,7 +18,7 @@ def seed():
 
 
 def check_linear_model(
-    model: Union[LinearRegression, MarginalLinearRegression], expect_coef: np.ndarray
+    model: LinearRegression | MarginalLinearRegression, expect_coef: np.ndarray
 ):
     assert model.coef_ == pytest.approx(expect_coef, rel=1e-1)
 
@@ -33,18 +31,16 @@ def _calculate_analytical_form(X, y, sigma_noise: float, sigma_coef: float):
     """Calculation by analytical form"""
     n_data = X.shape[0]
 
-    lambda_matrix = (
-        np.dot(X.T, X) / sigma_noise ** 2 + np.eye(X.shape[1]) / sigma_coef ** 2
-    )
-    mu = np.dot(np.linalg.inv(lambda_matrix), np.dot(X.T, y) / sigma_noise ** 2)
+    lambda_matrix = np.dot(X.T, X) / sigma_noise**2 + np.eye(X.shape[1]) / sigma_coef**2
+    mu = np.dot(np.linalg.inv(lambda_matrix), np.dot(X.T, y) / sigma_noise**2)
 
-    cov_matrix = sigma_noise ** 2 * np.eye(n_data) + sigma_coef ** 2 * np.dot(X, X.T)
+    cov_matrix = sigma_noise**2 * np.eye(n_data) + sigma_coef**2 * np.dot(X, X.T)
     var_y = np.var(y)
     log_likelihood = (
         -n_data / 2 * np.log(2 * np.pi)
         - 1 / 2 * np.log(np.linalg.det(cov_matrix))
         - 1 / 2 * np.dot(y, np.dot(np.linalg.inv(cov_matrix), y))
-        + 1 / 2 * np.log(sigma_noise ** 2 / (n_data * var_y + sigma_noise ** 2))
+        + 1 / 2 * np.log(sigma_noise**2 / (n_data * var_y + sigma_noise**2))
     )
     return mu, log_likelihood
 

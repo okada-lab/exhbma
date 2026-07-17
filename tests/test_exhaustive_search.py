@@ -1,5 +1,3 @@
-from typing import List
-
 import numpy as np
 import pytest
 
@@ -15,11 +13,11 @@ def seed():
 
 def check_basic_attribute_after_fit(model: ExhaustiveLinearRegression, n_features: int):
     assert model.n_features_in_ == n_features
-    assert len(model.indicators_) == 2 ** n_features
+    assert len(model.indicators_) == 2**n_features
 
 
 def check_feature_posteriors(
-    model: ExhaustiveLinearRegression, n_features: int, nonzero_index: List[bool]
+    model: ExhaustiveLinearRegression, n_features: int, nonzero_index: list[bool]
 ):
     assert len(model.feature_posteriors_) == n_features
     assert np.all(np.array(model.feature_posteriors_)[nonzero_index] > 0.9)

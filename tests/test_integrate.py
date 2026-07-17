@@ -16,7 +16,7 @@ def test_integrate_log_values_in_square():
     """
 
     def func(x, y):
-        return x ** 2 * y ** 2 + x ** 2 + y ** 2
+        return x**2 * y**2 + x**2 + y**2
 
     expect = np.log(31 / 9)
     n_x1, n_x2 = 30, 40
@@ -41,7 +41,7 @@ def test_integrate_log_values_in_square_with_weights():
     """
 
     def func(x, y):
-        return x ** 2 * y ** 2 + x ** 2 + y ** 2
+        return x**2 * y**2 + x**2 + y**2
 
     expect = np.log(31 / 9)
     n_x1, n_x2 = 30, 40
@@ -103,7 +103,7 @@ def test_error_negative_when_expect_positive_integrate_log_values_in_square():
     """
 
     def func(x, y):
-        return x ** 2 * y ** 2 + x ** 2 + y ** 2
+        return x**2 * y**2 + x**2 + y**2
 
     n_x1, n_x2 = 30, 40
     x1 = np.linspace(0, 1, n_x1)
@@ -130,7 +130,7 @@ def test_integrate_log_values_in_line():
     """
 
     def func(x):
-        return x ** 2 + x + 1
+        return x**2 + x + 1
 
     expect = np.log(44 / 3)
     n_x1 = 30
@@ -152,7 +152,7 @@ def test_integrate_log_values_in_line_with_weights():
     """
 
     def func(x):
-        return x ** 2 + x + 1
+        return x**2 + x + 1
 
     expect = np.log(44 / 3)
     n_x1 = 30
@@ -206,7 +206,7 @@ def test_error_negative_when_expect_positive_integrate_log_values_in_line():
     """
 
     def func(x):
-        return x ** 2 + x + 1
+        return x**2 + x + 1
 
     n_x1 = 30
     x1 = np.linspace(1, 3, n_x1)

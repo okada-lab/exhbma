@@ -4,36 +4,28 @@ on: push
 
 jobs:
   ci-fs-bma:
-    name: "CI: exhbma package"
+    name: "CI: exhbma package (Python ${{ matrix.python-version }})"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
-
-      - name: Install Poetry # GITHUB_PATH is updated from next step
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Setup Poetry
-        run: |
-          poetry config virtualenvs.in-project true
-
-      - name: Cache venv
-        id: cache-venv
-        uses: actions/cache@v2
-        with:
-          path: .venv
-          key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}
+          python-version: ${{ matrix.python-version }}
 
       - name: Install Python packages
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: poetry install
+        run: uv sync --all-groups
 
       - name: Format
         run: |
@@ -47,4 +39,7 @@ jobs:
         run: make test-full
 
       - name: Check requirements.txt for sphinx deployment
-        run: exit $(poetry export -f requirements.txt | diff docs/requirements.txt - | wc -l)
+        if: matrix.python-version == '3.12'
+        run: |
+          uv export --group dev --format requirements-txt --no-hashes --no-header -o /tmp/requirements.txt
+          diff docs/requirements.txt /tmp/requirements.txt
