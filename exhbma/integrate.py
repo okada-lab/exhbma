@@ -22,7 +22,7 @@ def integrate_log_values_in_square(
     x2: list[float]
         2nd axis points.
 
-    weights: Optional[list[list[float]]], default: None
+    weights: list[list[float]] | None, default: None
         Weights to log_values.
 
     expect_positive: bool, default: True
@@ -89,7 +89,7 @@ def integrate_log_values_in_line(
     x1: list[float]
         1st axis points.
 
-    weights: Optional[list[float]], default: None
+    weights: list[float] | None, default: None
         Weights to log_values.
 
     expect_positive: bool, default: True
