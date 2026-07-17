@@ -4,8 +4,8 @@ from scipy.stats import gamma as sp_gamma
 
 
 class RandomVariable(BaseModel):
-    position: float = Field(..., description="data position")
-    prob: float = Field(..., ge=0, description="probability density/mass at position")
+    position: float = Field(description="data position")
+    prob: float = Field(ge=0, description="probability density/mass at position")
 
 
 def gamma(

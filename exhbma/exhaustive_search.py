@@ -17,22 +17,16 @@ logging.basicConfig(level=logging.INFO)
 
 class ModelInfo(BaseModel):
     indicator: list[int] = Field(
-        ...,
         description="Indicator vector of the model. This attribute may be excluded in the future, please use parent's `indicators_` instead.",  # noqa
     )
     log_prior: float = Field(
-        ...,
         description="Log-prior of the model. This attribute may be excluded in the future, please use parent's `log_priors_` instead.",  # noqa
     )
     coefficient: list[float] = Field(
-        ...,
         description="Coefficient of linear model, which is marginalized over sigma_noise and sigma_coef.",  # noqa
     )
-    log_likelihood: float = Field(
-        ..., description="Marginal log-likelihood of the model."
-    )
+    log_likelihood: float = Field(description="Marginal log-likelihood of the model.")
     log_likelihood_over_sigma: list[list[float]] = Field(
-        ...,
         description="Log-likelihood over sigma_noise and sigma_coef, `p(y| sigma_noise, sigma_coef, X)`.",  # noqa
     )
 
