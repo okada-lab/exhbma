@@ -1,10 +1,10 @@
 [project]
 name = "exhbma"
-version = "0.2.0"
+version = "0.2.1"
 description = "Exhaustive Search with Bayesian Model Averaging"
 authors = [{ name = "Koki Obinata", email = "koki.obi.321@gmail.com" }]
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.11,<3.14"
 dependencies = [
     "numpy>=1.23.2,<3.0",

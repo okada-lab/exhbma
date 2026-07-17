@@ -19,8 +19,11 @@ sys.path.insert(0, os.path.abspath("../.."))
 # -- Project information -----------------------------------------------------
 
 project = "ExhBMA"
-copyright = "2022, Koki Obinata"
+copyright = "2022-2026, Koki Obinata"
 author = "Koki Obinata"
+
+version = "0.2"
+release = "0.2.1"
 
 
 # -- General configuration ---------------------------------------------------
