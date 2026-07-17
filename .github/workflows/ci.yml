@@ -41,5 +41,5 @@ jobs:
       - name: Check requirements.txt for sphinx deployment
         if: matrix.python-version == '3.12'
         run: |
-          uv export --group dev --format requirements-txt -o /tmp/requirements.txt
+          uv export --group dev --format requirements-txt --no-hashes --no-header -o /tmp/requirements.txt
           diff docs/requirements.txt /tmp/requirements.txt
