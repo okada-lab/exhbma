@@ -76,7 +76,7 @@ def test_inverse_wo_low_high() -> None:
 
     const = np.log(10**high) - np.log(10**low)
     distribution = 1 / (x * const)
-    for rv, d in zip(rvs, distribution, strict=False):
+    for rv, d in zip(rvs, distribution, strict=True):
         assert rv.prob == pytest.approx(d)
 
 
@@ -93,5 +93,5 @@ def test_inverse_with_different_low_high() -> None:
 
     const = np.log(10**high) - np.log(10**low)
     distribution = 1 / (x * const)
-    for rv, d in zip(rvs, distribution, strict=False):
+    for rv, d in zip(rvs, distribution, strict=True):
         assert rv.prob == pytest.approx(d)

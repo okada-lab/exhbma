@@ -275,5 +275,5 @@ def test_fixed_alpha_prior_not_half() -> None:
         [1, 1, 1],
     ]
     probs = [0.008, 0.032, 0.032, 0.128, 0.032, 0.128, 0.128, 0.512]
-    for indicator, p in zip(indicators, probs, strict=False):
+    for indicator, p in zip(indicators, probs, strict=True):
         assert reg._fixed_alpha_prior(indicator=indicator) == pytest.approx(np.log(p))
