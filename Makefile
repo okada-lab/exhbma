@@ -22,12 +22,12 @@ lint: flake8 mypy
 
 .PHONY: test
 test:
-	uv run pytest -s --cov-config=.coveragerc --cov=exhbma --cov-report=html .
+	uv run pytest -s --cov=exhbma --cov-report=html .
 
 .PHONY: test-full
 test-full:
-	uv run pytest -s --cov-config=.coveragerc --cov=exhbma --cov-report=html --tutorial .
+	uv run pytest -s --cov=exhbma --cov-report=html --tutorial .
 
 .PHONY: test-full-force-update
 test-full-force-update:
-	uv run pytest -s --cov-config=.coveragerc --cov=exhbma --cov-report=html --tutorial --force-update .
+	uv run pytest -s --cov=exhbma --cov-report=html --tutorial --force-update .

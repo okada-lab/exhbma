@@ -72,3 +72,7 @@ follow_imports = "silent"
 [[tool.mypy.overrides]]
 module = ["numpy.*", "scipy.*", "matplotlib.*"]
 follow_imports = "skip"
+
+[tool.coverage.run]
+source = ["exhbma"]
+omit = ["tests/*"]
